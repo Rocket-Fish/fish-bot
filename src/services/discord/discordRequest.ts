@@ -1,6 +1,6 @@
 import 'dotenv/config';
-import http from '../http';
-import { AxiosError, AxiosRequestConfig } from 'axios';
+import http, { HTTPError } from '../http';
+import { AxiosRequestConfig } from 'axios';
 import util from 'util';
 
 export async function discordRequest(
@@ -23,16 +23,16 @@ export async function discordRequest(
 }
 
 export function handleError(err: unknown) {
-    if (err instanceof AxiosError)
+    if (err instanceof HTTPError)
         console.error(
-            `Error while making discord request: ${err.request?.url} | ${err.code} | ${err.message}\n`,
-            util.inspect(err.response?.data, {
+            `Error while making discord request: ${err.url} | ${err.code} | ${err.message}\n`,
+            util.inspect(err.data, {
                 showHidden: true,
                 depth: null,
                 colors: true,
             })
         );
-    else console.error(err);
+    else console.error('Unkown error has occured');
 }
 
 export default discordRequest;

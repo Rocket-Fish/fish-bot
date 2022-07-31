@@ -30,7 +30,7 @@ export enum ApplicationCommandOptionTypes {
 export type ApplicationCommandOptionChoice = {
     name: string;
     // name_localizations?: skipping localization
-    value: string;
+    value: string | number;
 };
 
 export type ApplicationCommandOption = {
@@ -46,7 +46,7 @@ export type ApplicationCommandOption = {
     min_value?: number; // for INTEGER or NUMBER types
     max_value?: number; // for INTEGER or NUMBER types
     min_length?: number; // for STRING type
-    max_length: number; // for STRING type
+    max_length?: number; // for STRING type
     autocomplete?: boolean; // for STRING or INTEGER or NUMBER types
 };
 

@@ -21,32 +21,45 @@ export async function migrateGuildCommands(
 
         // install or command if necessary
         commands.forEach(async (command) => {
-            const installedCommand = findCommandByName(
-                command.name,
-                installedCommands
-            );
-            // check if command is installed
-            if (installedCommand) {
-                // check if command needs migration
-                if (hasCommandBeenChanged(command, installedCommand)) {
-                    // update command
-                    await updateGuildCommand(
-                        { id: installedCommand.id, ...command },
+            try {
+                const installedCommand = findCommandByName(
+                    command.name,
+                    installedCommands
+                );
+                // check if command is installed
+                if (installedCommand) {
+                    // check if command needs migration
+                    if (hasCommandBeenChanged(command, installedCommand)) {
+                        // update command
+                        await updateGuildCommand(
+                            { id: installedCommand.id, ...command },
+                            guildId
+                        );
+                    }
+                } else {
+                    console.log(
+                        `installing /${command.name} for guild:${guildId}`
+                    );
+                    const newCommand = await createGuildCommand(
+                        command,
                         guildId
                     );
+                    installedCommands.push(newCommand);
                 }
-            } else {
-                console.log(`installing /${command.name} for guild:${guildId}`);
-                const newCommand = await createGuildCommand(command, guildId);
-                installedCommands.push(newCommand);
+            } catch (e) {
+                handleError(e);
             }
         });
 
         // delete orphaned commands
         installedCommands.forEach(async (ic) => {
-            const localComponent = findCommandByName(ic.name, commands);
-            if (!localComponent) {
-                await deleteGuildCommand(ic.id, guildId);
+            try {
+                const localComponent = findCommandByName(ic.name, commands);
+                if (!localComponent) {
+                    await deleteGuildCommand(ic.id, guildId);
+                }
+            } catch (e) {
+                handleError(e);
             }
         });
     } catch (e) {
