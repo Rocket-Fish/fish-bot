@@ -17,3 +17,5 @@ export function verifyDiscordRequest(clientKey: string) {
     },
   });
 }
+
+export default verifyDiscordRequest;

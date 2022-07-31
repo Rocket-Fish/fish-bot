@@ -1,6 +1,7 @@
 import "dotenv/config";
-import http from "./http.service";
-import { AxiosRequestConfig } from "axios";
+import http from "../http";
+import { AxiosError, AxiosRequestConfig } from "axios";
+import util from "util";
 
 export async function discordRequest(
   endpoint: string,
@@ -19,6 +20,21 @@ export async function discordRequest(
     ...config,
   });
   return res;
+}
+
+export function handleError(err: unknown) {
+  if (err instanceof AxiosError)
+    console.error(
+      "Error installing commands:",
+      err.code,
+      err.message,
+      util.inspect(err.response?.data, {
+        showHidden: true,
+        depth: null,
+        colors: true,
+      })
+    );
+  else console.error(err);
 }
 
 export default discordRequest;
