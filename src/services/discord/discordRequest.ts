@@ -3,10 +3,7 @@ import http, { HTTPError } from '../http';
 import { AxiosRequestConfig } from 'axios';
 import util from 'util';
 
-export async function discordRequest(
-    endpoint: string,
-    config?: AxiosRequestConfig
-) {
+export async function discordRequest(endpoint: string, config?: AxiosRequestConfig) {
     // append endpoint to root API URL
     const url = 'https://discord.com/api/v10/' + endpoint;
     const res = await http({
@@ -14,8 +11,7 @@ export async function discordRequest(
         headers: {
             Authorization: `Bot ${process.env.D_TOKEN}`,
             'Content-Type': 'application/json; charset=UTF-8',
-            'User-Agent':
-                'FishBot (https://github.com/LocalFishCateringServiceNearYou/fish-bot, 1.0.0)',
+            'User-Agent': 'FishBot (https://github.com/LocalFishCateringServiceNearYou/fish-bot, 1.0.0)',
         },
         ...config,
     });
@@ -27,7 +23,7 @@ export function handleError(err: unknown) {
         console.error(
             `Error while making discord request: ${err.url} | ${err.code} | ${err.message}\n`,
             util.inspect(err.data, {
-                showHidden: true,
+                showHidden: false,
                 depth: null,
                 colors: true,
             })

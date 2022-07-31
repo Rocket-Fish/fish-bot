@@ -29,7 +29,7 @@ export function handleInteractions(req: Request, res: Response) {
         if (data.name === CONFIGURE_ROLE_BY_ZONE.name) {
             console.log(
                 util.inspect(data, {
-                    showHidden: true,
+                    showHidden: false,
                     depth: null,
                     colors: true,
                 })
