@@ -1,8 +1,8 @@
-import { Router } from "express";
-import interactions from "./interactions";
+import { Router } from 'express';
+import interactions from './interactions';
 
 const router = Router();
 
-router.use("/interactions", interactions);
+router.use('/interactions', interactions);
 
 export default router;

@@ -1,18 +1,31 @@
-import discordRequest from "./discordRequest";
-import { APP_ID } from "./env";
-import { ApplicationCommand } from "./types";
+import discordRequest from './discordRequest';
+import { APPLICATION_ID } from './env';
+import { ApplicationCommand } from './types';
+
+export async function getGlobalCommand(
+    appId = APPLICATION_ID
+): Promise<ApplicationCommand[]> {
+    const globalEndpoint = `applications/${appId}/commands`;
+
+    // Send HTTP request with bot token
+    const res = await discordRequest(globalEndpoint, {
+        method: 'get',
+    });
+
+    return res.data;
+}
 
 export async function createGlobalCommand(
-  command: ApplicationCommand,
-  appId = APP_ID
-) {
-  const globalEndpoint = `applications/${appId}/commands`;
+    command: ApplicationCommand,
+    appId = APPLICATION_ID
+): Promise<ApplicationCommand> {
+    const globalEndpoint = `applications/${appId}/commands`;
 
-  // Send HTTP request with bot token
-  const res = await discordRequest(globalEndpoint, {
-    method: "post",
-    data: command,
-  });
+    // Send HTTP request with bot token
+    const res = await discordRequest(globalEndpoint, {
+        method: 'post',
+        data: command,
+    });
 
-  return res.data;
+    return res.data;
 }
