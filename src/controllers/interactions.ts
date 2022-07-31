@@ -1,5 +1,6 @@
 import { InteractionType, InteractionResponseType } from 'discord-interactions';
 import { Request, Response } from 'express';
+import { PING } from '../services/discord/commands';
 
 export function handleInteractions(req: Request, res: Response) {
     // Interaction type and data
@@ -17,11 +18,11 @@ export function handleInteractions(req: Request, res: Response) {
      */
     if (type === InteractionType.APPLICATION_COMMAND) {
         // Slash command with name of "test"
-        if (data.name === 'test') {
+        if (data.name === PING.name) {
             // Send a message as response
             return res.send({
                 type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-                data: { content: 'A wild message appeared' },
+                data: { content: 'Pong' },
             });
         }
     }

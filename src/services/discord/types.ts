@@ -70,3 +70,17 @@ export type ApplicationCommand = {
     dm_permission?: boolean; //Indicates whether the command is available in DMs with the app, only for globally-scoped commands. By default, commands are visible.
     version?: string; //Autoincrementing version identifier updated during substantial record changes
 };
+
+/**
+ * this type is the same as ApplicationCommand except with a few params that are not optional
+ */
+export type ApplicationCommandResponse = ApplicationCommand & {
+    id: string;
+    application_id: string;
+    default_member_permissions: string | null; // see https://discord.com/developers/docs/topics/permissions
+    version: string; //Autoincrementing version identifier updated during substantial record changes
+};
+
+export type ApplicationCommandWithMandatoryId =
+    | ApplicationCommand
+    | { id: string };
