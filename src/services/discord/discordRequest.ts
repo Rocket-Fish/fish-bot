@@ -11,7 +11,7 @@ export async function discordRequest(endpoint: string, config?: AxiosRequestConf
         headers: {
             Authorization: `Bot ${process.env.D_TOKEN}`,
             'Content-Type': 'application/json; charset=UTF-8',
-            'User-Agent': 'FishBot (https://github.com/LocalFishCateringServiceNearYou/fish-bot, 1.0.0)',
+            'User-Agent': 'FishBot (https://github.com/Rocket-Fish/fish-bot, 1.0.0)',
         },
         ...config,
     });
