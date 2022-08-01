@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node dist/app.js",
     "build": "tsc",
-    "dev": "nodemon ./src/app.ts"
+    "dev": "nodemon ./src/app.ts", 
+    "migrate:latest": "knex migrate:latest"
   },
   "repository": {
     "type": "git",
@@ -29,6 +30,8 @@
     "axios": "^0.27.2",
     "discord-interactions": "^3.2.0",
     "dotenv": "^16.0.1",
-    "express": "^4.18.1"
+    "express": "^4.18.1",
+    "knex": "^2.2.0",
+    "pg": "^8.7.3"
   }
 }

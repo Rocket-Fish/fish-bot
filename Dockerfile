@@ -1,5 +1,6 @@
 FROM node:16
 
+ENV NODE_ENV=development
 # Create app directory
 WORKDIR /app/
 
