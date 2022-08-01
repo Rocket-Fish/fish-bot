@@ -5,6 +5,7 @@ import { InteractionResponseType } from 'discord-interactions';
 import migrateGuildCommands from '../migrateGuildCommands';
 import { CONFIGURE_ROLE_BY_ZONE } from './configure-role-by-zone';
 import { TEST } from './test';
+import responseToDiscord, { Status } from '../responseToDiscord';
 
 export const INIT: ApplicationCommand = {
     name: 'initialize',
@@ -24,32 +25,25 @@ export async function handleInit(req: Request, res: Response) {
         // TODO: make this configurable later
         await migrateGuildCommands(guild_id, [TEST, CONFIGURE_ROLE_BY_ZONE]);
     } catch (e) {
-        return res.send({
-            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: { content: `Initialization failed \n> ${e}` },
-        });
+        res.send(responseToDiscord('Initialization Failed', `${e}`, Status.failure));
     }
 
     if (guild) {
-        return res.send({
-            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: {
-                content:
-                    'Server recognized as already initialized, running this command further will only update slash commands installed on this server',
-            },
-        });
+        return res.send(
+            responseToDiscord(
+                'Initialization not needed',
+                `Server recognized as already initialized, running this command further will only update slash commands installed on this server`,
+                Status.warning
+            )
+        );
     } else {
         try {
             await createGuild(guild_id);
-            return res.send({
-                type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-                data: { content: 'Initialization complete' },
-            });
+            return res.send(
+                responseToDiscord(`Initialization complete`, 'Bot iniialized for this server and server slash commands has been installed')
+            );
         } catch (e) {
-            return res.send({
-                type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-                data: { content: `Initialization failed \n> ${e}` },
-            });
+            res.send(responseToDiscord('Initialization Failed', `${e}`, Status.failure));
         }
     }
 }
