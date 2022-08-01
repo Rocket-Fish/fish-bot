@@ -7,23 +7,14 @@ const instance = axios.create({
 });
 
 instance.interceptors.request.use((r) => {
-    console.log(
-        `${new Date()} | AXIOS:${r.method?.toUpperCase()} | ${
-            r.url
-        } | ${JSON.stringify(r.data)}`
-    );
+    console.log(`${new Date()} | AXIOS:${r.method?.toUpperCase()} | ${r.url} | ${JSON.stringify(r.data)}`);
     return r;
 });
 
 instance.interceptors.response.use(
     (r) => r,
     (err) => {
-        throw new HTTPError(
-            err.request?.url || '<unavailable URL>',
-            err.code,
-            err.message,
-            err.response?.data
-        );
+        throw new HTTPError(err.request?.url || '<unavailable URL>', err.code, err.message, err.response?.data);
     }
 );
 

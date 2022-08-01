@@ -81,6 +81,4 @@ export type ApplicationCommandResponse = ApplicationCommand & {
     version: string; //Autoincrementing version identifier updated during substantial record changes
 };
 
-export type ApplicationCommandWithMandatoryId =
-    | ApplicationCommand
-    | { id: string };
+export type ApplicationCommandWithMandatoryId = ApplicationCommand | { id: string };

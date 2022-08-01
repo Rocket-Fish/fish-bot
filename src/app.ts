@@ -11,8 +11,5 @@ app.use(router);
 
 app.listen(3000, () => {
     console.log('Listening on port 3000');
-    migrateGuildCommands(process.env.D_DEFUALT_GUILD_ID || '', [
-        TEST,
-        CONFIGURE_ROLE_BY_ZONE,
-    ]);
+    // migrateGuildCommands(process.env.D_DEFUALT_GUILD_ID || '', [TEST, CONFIGURE_ROLE_BY_ZONE]);
 });

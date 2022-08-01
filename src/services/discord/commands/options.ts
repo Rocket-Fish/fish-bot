@@ -1,4 +1,5 @@
 import { ApplicationCommandOption, ApplicationCommandOptionTypes } from '../types';
+import { ApplicationCommandOptionWSubCommand, ApplicationCommandOptionWSubCommandGroup } from './types';
 
 export const role: ApplicationCommandOption = {
     name: 'role',
@@ -27,6 +28,19 @@ export const zoneId: ApplicationCommandOption = {
     min_value: 0,
 };
 
+export const encounter: ApplicationCommandOption = {
+    name: 'encounter-id',
+    description: 'the id of the encounter',
+    required: true,
+    type: ApplicationCommandOptionTypes.INTEGER,
+    choices: [
+        {
+            name: `TODO: Some Encounter`,
+            value: 1,
+        },
+    ],
+};
+
 export const encounterId: ApplicationCommandOption = {
     name: 'encounter-id',
     description: 'the id of the encounter',
@@ -36,10 +50,7 @@ export const encounterId: ApplicationCommandOption = {
     max_value: 1000,
 };
 
-export type ApplicationCommandOptionWSubCommand = ApplicationCommandOption & {
-    type: ApplicationCommandOptionTypes.SUB_COMMAND;
-};
-
+// Comparison Section
 const greaterThan: ApplicationCommandOptionWSubCommand = {
     name: 'greater-than',
     description: 'with a condition greater than',
@@ -60,10 +71,7 @@ export const comparison = {
     greaterThan,
 };
 
-export type ApplicationCommandOptionWSubCommandGroup = ApplicationCommandOption & {
-    type: ApplicationCommandOptionTypes.SUB_COMMAND_GROUP;
-};
-
+// conditions section
 const purpleCount: ApplicationCommandOptionWSubCommandGroup = {
     name: 'purple-count',
     description: 'number of encounters in this zone ranked purple or higher',

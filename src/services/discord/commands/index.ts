@@ -57,10 +57,18 @@ export const CONFIGURE_ROLE_BY_ZONE: ApplicationCommand = {
     description: 'Configures the condition of giving out a specific role in this server, based on fflogs zone',
     type: ApplicationCommandTypes.CHAT_INPUT,
     options: [condition.purpleCount],
+    default_member_permissions: '0', // default to disable for everyone except server admins
 };
 
 export const TEST: ApplicationCommand = {
     name: 'test',
     description: 'Check if FishBot is alive',
     type: ApplicationCommandTypes.CHAT_INPUT,
+};
+
+export const INIT: ApplicationCommand = {
+    name: 'initialize',
+    description: 'Initialize the bot to this server and install server commands',
+    type: ApplicationCommandTypes.CHAT_INPUT,
+    dm_permission: false,
 };

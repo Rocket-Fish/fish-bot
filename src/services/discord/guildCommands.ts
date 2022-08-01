@@ -1,25 +1,14 @@
 import discordRequest from './discordRequest';
 import { APPLICATION_ID } from './env';
-import {
-    ApplicationCommand,
-    ApplicationCommandResponse,
-    ApplicationCommandWithMandatoryId,
-} from './types';
+import { ApplicationCommand, ApplicationCommandResponse, ApplicationCommandWithMandatoryId } from './types';
 
-export async function getGuildCommands(
-    guildId: string,
-    appId = process.env.D_APPLICATION_ID
-): Promise<ApplicationCommandResponse[]> {
+export async function getGuildCommands(guildId: string, appId = process.env.D_APPLICATION_ID): Promise<ApplicationCommandResponse[]> {
     const endpoint = `applications/${appId}/guilds/${guildId}/commands`;
     const res = await discordRequest(endpoint, { method: 'GET' });
     return res.data;
 }
 
-export async function createGuildCommand(
-    command: ApplicationCommand,
-    guildId: string,
-    appId = APPLICATION_ID
-): Promise<ApplicationCommandResponse> {
+export async function createGuildCommand(command: ApplicationCommand, guildId: string, appId = APPLICATION_ID): Promise<ApplicationCommandResponse> {
     const endpoint = `applications/${appId}/guilds/${guildId}/commands`;
 
     const res = await discordRequest(endpoint, {
@@ -45,11 +34,7 @@ export async function updateGuildCommand(
     return res.data;
 }
 
-export async function deleteGuildCommand(
-    commandId: string,
-    guildId: string,
-    appId = APPLICATION_ID
-) {
+export async function deleteGuildCommand(commandId: string, guildId: string, appId = APPLICATION_ID) {
     const endpoint = `applications/${appId}/guilds/${guildId}/commands/${commandId}`;
 
     await discordRequest(endpoint, {
