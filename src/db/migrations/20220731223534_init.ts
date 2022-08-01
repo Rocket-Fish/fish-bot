@@ -6,7 +6,7 @@ export async function up(knex: Knex): Promise<void> {
     return knex.schema.createTable(tableName, (table) => {
         table.increments('id').primary();
         table.string('d_guild_id').notNullable().unique();
-        table.timestamps(true);
+        table.timestamps(true, true);
     });
 }
 
