@@ -51,15 +51,19 @@ export const encounterId: ApplicationCommandOption = {
 };
 
 // Comparison Section
-const greaterThan: ApplicationCommandOptionWSubCommand = {
-    name: 'greater-than',
+export enum Comparisons {
+    greaterThan = 'greater-than',
+}
+
+export const greaterThan: ApplicationCommandOptionWSubCommand = {
+    name: Comparisons.greaterThan,
     description: 'with a condition greater than',
     type: ApplicationCommandOptionTypes.SUB_COMMAND,
     options: [
         role,
         zone,
         {
-            name: 'greater-than',
+            name: Comparisons.greaterThan,
             description: 'greater than this number',
             type: ApplicationCommandOptionTypes.NUMBER,
             required: true,
@@ -67,18 +71,14 @@ const greaterThan: ApplicationCommandOptionWSubCommand = {
     ],
 };
 
-export const comparison = {
-    greaterThan,
-};
-
 // conditions section
-const purpleCount: ApplicationCommandOptionWSubCommandGroup = {
-    name: 'purple-count',
+export enum Conditions {
+    purpleCount = 'purple-count',
+}
+
+export const purpleCount: ApplicationCommandOptionWSubCommandGroup = {
+    name: Conditions.purpleCount,
     description: 'number of encounters in this zone ranked purple or higher',
     type: ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
-    options: [comparison.greaterThan],
-};
-
-export const condition = {
-    purpleCount,
+    options: [greaterThan],
 };

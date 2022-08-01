@@ -4,7 +4,7 @@ import { CONFIGURE_ROLE_BY_ZONE, handleConfigureRoleByZone } from '../services/d
 import { handleInit, INIT } from '../services/discord/commands/init';
 import { handleTest, TEST } from '../services/discord/commands/test';
 
-export function handleInteractions(req: Request, res: Response) {
+export async function handleInteractions(req: Request, res: Response) {
     // Interaction type and data
     const { type, data } = req.body;
 
@@ -21,11 +21,11 @@ export function handleInteractions(req: Request, res: Response) {
     if (type === InteractionType.APPLICATION_COMMAND) {
         switch (data.name) {
             case TEST.name:
-                return handleTest(req, res);
+                return await handleTest(req, res);
             case CONFIGURE_ROLE_BY_ZONE.name:
-                return handleConfigureRoleByZone(req, res);
+                return await handleConfigureRoleByZone(req, res);
             case INIT.name:
-                return handleInit(req, res);
+                return await handleInit(req, res);
             default:
                 return res.send({
                     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
