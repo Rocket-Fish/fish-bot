@@ -7,12 +7,12 @@ WORKDIR /app/
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 # where available (npm@5+)
-ADD package*.json /app/
+ADD package*.json ./
 
 # RUN npm install
 RUN npm ci
 
 # Bundle app source
-ADD . /app/
+ADD . .
 
 EXPOSE 3000

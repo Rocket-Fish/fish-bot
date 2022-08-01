@@ -4,8 +4,7 @@ services:
         build: .
         command: npm run dev
         volumes:
-            - app:/app
-            - nodemodules:/app/node_modules
+            - .:/app/
         ports:
             - '3000:3000'
         depends_on:
@@ -27,5 +26,3 @@ services:
             - data:/var/lib/postgresql/data/
 volumes:
     data: {}
-    app: {}
-    nodemodules: {}
