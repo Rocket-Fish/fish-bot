@@ -15,6 +15,10 @@ export const INIT: ApplicationCommand = {
     default_member_permissions: '0',
 };
 
+async function migrateDefaultCommands(guildId: string) {
+    return migrateGuildCommands(guildId, [TEST, CONFIGURE_ROLE_BY_ZONE]);
+}
+
 export async function handleInit(req: Request, res: Response) {
     const { guild_id } = req.body;
 
@@ -22,8 +26,8 @@ export async function handleInit(req: Request, res: Response) {
     try {
         // check if guild exists in database already
         guild = await getGuildByDiscordId(guild_id);
-        // TODO: make this configurable later
-        await migrateGuildCommands(guild_id, [TEST, CONFIGURE_ROLE_BY_ZONE]);
+        // mount default commands
+        await migrateDefaultCommands(guild_id);
     } catch (e) {
         res.send(responseToDiscord('Initialization Failed', `${e}`, Status.failure));
     }
@@ -31,8 +35,8 @@ export async function handleInit(req: Request, res: Response) {
     if (guild) {
         return res.send(
             responseToDiscord(
-                'Initialization not needed',
-                `Server recognized as already initialized, running this command further will only update slash commands installed on this server`,
+                'Initialization Skipped; Commands Updated',
+                `Server recognized as already initialized; Any modified server scoped slash commands has been updated`,
                 Status.warning
             )
         );
@@ -40,7 +44,7 @@ export async function handleInit(req: Request, res: Response) {
         try {
             await createGuild(guild_id);
             return res.send(
-                responseToDiscord(`Initialization complete`, 'Bot iniialized for this server and server slash commands has been installed')
+                responseToDiscord(`Initialization Complete`, 'Bot iniialized for this server and server slash commands has been installed')
             );
         } catch (e) {
             res.send(responseToDiscord('Initialization Failed', `${e}`, Status.failure));
