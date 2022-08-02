@@ -6,6 +6,7 @@ import migrateGuildCommands from '../migrateGuildCommands';
 import { CONFIGURE_ROLE_BY_ZONE } from './configure-role-by-zone';
 import { TEST } from './test';
 import responseToDiscord, { Status } from '../responseToDiscord';
+import { LIST_ROLE_CONFIGURATION } from './list-role-configuration';
 
 export const INIT: ApplicationCommand = {
     name: 'initialize',
@@ -16,7 +17,7 @@ export const INIT: ApplicationCommand = {
 };
 
 async function migrateDefaultCommands(guildId: string) {
-    return migrateGuildCommands(guildId, [TEST, CONFIGURE_ROLE_BY_ZONE]);
+    return migrateGuildCommands(guildId, [TEST, CONFIGURE_ROLE_BY_ZONE, LIST_ROLE_CONFIGURATION]);
 }
 
 export async function handleInit(req: Request, res: Response) {

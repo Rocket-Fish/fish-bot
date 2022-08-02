@@ -15,10 +15,16 @@ export type Role = {
     id: number;
     guild_id: number;
     d_role_id: string;
-    rule: string;
+    rule: Rule;
     created_at: number;
     updated_at: number;
 };
+
+type RoleStringified =
+    | Role
+    | {
+          rule: string;
+      };
 
 export type FFlogsArea = {
     type: 'zone' | 'encounter';
@@ -35,9 +41,18 @@ const tableName = 'roles';
 
 export function createRole(forGuild: number, discordRoleId: string, rule: Rule): Promise<void> {
     return new Promise((resolve, reject) => {
-        db.from<Role>(tableName)
+        db.from<RoleStringified>(tableName)
             .insert({ guild_id: forGuild, d_role_id: discordRoleId, rule: JSON.stringify(rule) })
             .then(() => resolve())
+            .catch((e) => reject(e));
+    });
+}
+
+export function getRoles(forGuild: number): Promise<Role[]> {
+    return new Promise((resolve, reject) => {
+        db.from<Role>(tableName)
+            .where('guild_id', forGuild)
+            .then((roles) => resolve(roles))
             .catch((e) => reject(e));
     });
 }

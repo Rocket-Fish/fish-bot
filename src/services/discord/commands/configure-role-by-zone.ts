@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { ApplicationCommand, ApplicationCommandTypes } from '../types';
 import { Comparisons, Conditions, purpleCount } from './options';
-import { InteractionResponseType, MessageComponentTypes } from 'discord-interactions';
 import { createRole, Rule } from '../../../models/Role';
 import { getGuildByDiscordId } from '../../../models/Guild';
 import { INIT } from './init';
