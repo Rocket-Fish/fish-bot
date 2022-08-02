@@ -12,7 +12,7 @@ import { Comparisons, Conditions } from '../services/discord/commands/options';
  */
 
 export type Role = {
-    id: number;
+    id: number; // TODO: redo database and turn this into a uuid
     guild_id: number;
     d_role_id: string;
     rule: Rule;
