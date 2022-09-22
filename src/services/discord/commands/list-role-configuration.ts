@@ -29,8 +29,8 @@ export async function handleListRoleConfiguration(req: Request, res: Response) {
         } else {
             const StringifiedRoleList = roleList
                 .map(
-                    ({ rule, d_role_id }) =>
-                        `Give <@&${d_role_id}> to users whos ${rule.condition} is ${rule.comparison.type} ${rule.comparison.value} in ${rule.fflogsArea.type} ${rule.fflogsArea.value}`
+                    ({ rule, discord_role_id }) =>
+                        `Give <@&${discord_role_id}> to users whos ${rule.condition} is ${rule.comparison.type} ${rule.comparison.value} in ${rule.fflogsArea.type} ${rule.fflogsArea.value}`
                 )
                 .join('\n\n');
             return res.send(responseToDiscord(`Found ${roleList.length} Role Configurations`, StringifiedRoleList));

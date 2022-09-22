@@ -4,8 +4,8 @@ const tableName = 'guilds';
 
 export async function up(knex: Knex): Promise<void> {
     return knex.schema.createTable(tableName, (table) => {
-        table.increments('id').primary();
-        table.string('d_guild_id').notNullable().unique();
+        table.uuid('id').primary().unique().defaultTo(knex.raw('gen_random_uuid()'));
+        table.string('discord_guild_id').notNullable().unique();
         table.timestamps(true, true);
     });
 }

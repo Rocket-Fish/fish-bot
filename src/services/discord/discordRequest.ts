@@ -9,7 +9,7 @@ export async function discordRequest(endpoint: string, config?: AxiosRequestConf
     const res = await http({
         url,
         headers: {
-            Authorization: `Bot ${process.env.D_TOKEN}`,
+            Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
             'Content-Type': 'application/json; charset=UTF-8',
             'User-Agent': 'FishBot (https://github.com/Rocket-Fish/fish-bot, 1.0.0)',
         },

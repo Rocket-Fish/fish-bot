@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/app.js",
     "build": "tsc",
-    "dev": "nodemon ./src/app.ts", 
+    "dev": "nodemon ./src/app.ts",
     "migrate:latest": "knex migrate:latest"
   },
   "repository": {

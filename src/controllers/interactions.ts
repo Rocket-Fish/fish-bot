@@ -8,6 +8,8 @@ import { handleTest, TEST } from '../services/discord/commands/test';
 export async function handleInteractions(req: Request, res: Response) {
     // Interaction type and data
     const { type, data } = req.body;
+    const app = req.app;
+    app.locals.fflogsToken;
 
     /**
      * Handle verification requests

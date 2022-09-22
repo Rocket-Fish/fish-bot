@@ -14,7 +14,7 @@ import { Comparisons, Conditions } from '../services/discord/commands/options';
 export type Role = {
     id: number; // TODO: redo database and turn this into a uuid
     guild_id: number;
-    d_role_id: string;
+    discord_role_id: string;
     rule: Rule;
     created_at: number;
     updated_at: number;
@@ -42,7 +42,7 @@ const tableName = 'roles';
 export function createRole(forGuild: number, discordRoleId: string, rule: Rule): Promise<void> {
     return new Promise((resolve, reject) => {
         db.from<RoleStringified>(tableName)
-            .insert({ guild_id: forGuild, d_role_id: discordRoleId, rule: JSON.stringify(rule) })
+            .insert({ guild_id: forGuild, discord_role_id: discordRoleId, rule: JSON.stringify(rule) })
             .then(() => resolve())
             .catch((e) => reject(e));
     });

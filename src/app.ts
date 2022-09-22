@@ -4,10 +4,23 @@ import router from './router';
 import { logger } from './middleware/logger';
 import { INIT } from './services/discord/commands/init';
 import { migrateGlobalComands } from './services/discord/migrateGlobalCommands';
+import { getAccessToken } from './services/fflogs/init';
 
 const app = express();
+
 app.use(logger);
 app.use(router);
+
+// TODO: make this a cron job
+// access token seems to be valid for 360 days
+// also retry after a few seconds if it fails
+getAccessToken()
+    .then((accessToken: string) => {
+        app.locals.fflogsToken = accessToken;
+    })
+    .catch((e: Error) => {
+        console.log(e);
+    });
 
 app.listen(3000, () => {
     console.log('Listening on port 3000');

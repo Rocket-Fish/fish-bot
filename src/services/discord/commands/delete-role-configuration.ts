@@ -10,9 +10,9 @@ export async function generateDeleteRoleConfigurationCommand(guildId: number): P
 
     try {
         const roleList = await getRoles(guildId);
-        roleList.forEach(({ id, d_role_id, rule }) => {
+        roleList.forEach(({ id, discord_role_id, rule }) => {
             choices.push({
-                name: `<@&${d_role_id}> :: ${rule.condition} is ${rule.comparison.type} ${rule.comparison.value} in ${rule.fflogsArea.type} ${rule.fflogsArea.value}`,
+                name: `<@&${discord_role_id}> :: ${rule.condition} is ${rule.comparison.type} ${rule.comparison.value} in ${rule.fflogsArea.type} ${rule.fflogsArea.value}`,
                 value: id,
             });
         });

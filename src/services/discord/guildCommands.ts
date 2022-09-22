@@ -2,7 +2,7 @@ import discordRequest from './discordRequest';
 import { APPLICATION_ID } from './env';
 import { ApplicationCommand, ApplicationCommandResponse, ApplicationCommandWithMandatoryId } from './types';
 
-export async function getGuildCommands(guildId: string, appId = process.env.D_APPLICATION_ID): Promise<ApplicationCommandResponse[]> {
+export async function getGuildCommands(guildId: string, appId = process.env.DISCORD_APPLICATION_ID): Promise<ApplicationCommandResponse[]> {
     const endpoint = `applications/${appId}/guilds/${guildId}/commands`;
     const res = await discordRequest(endpoint, { method: 'GET' });
     return res.data;

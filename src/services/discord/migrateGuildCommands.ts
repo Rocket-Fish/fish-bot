@@ -23,7 +23,7 @@ export async function migrateGuildCommands(guildId: string, commands: Applicatio
                         await updateGuildCommand({ id: installedCommand.id, ...command }, guildId);
                     }
                 } else {
-                    console.log(`installing /${command.name} for guild:${guildId}`);
+                    console.log(`installing /${command.name} for guild: ${guildId}`);
                     const newCommand = await createGuildCommand(command, guildId);
                     installedCommands.push(newCommand);
                 }
