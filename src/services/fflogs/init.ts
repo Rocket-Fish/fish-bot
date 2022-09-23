@@ -1,5 +1,5 @@
 import { AxiosRequestConfig } from 'axios';
-import { FFLOGS_CLIENT_ID, FFLOGS_CLIENT_SECRET } from '../discord/env';
+import { FFLOGS_CLIENT_ID, FFLOGS_CLIENT_SECRET, IS_DEVELOPMENT } from '../discord/env';
 import http, { HTTPError } from '../http';
 
 /**
@@ -22,7 +22,10 @@ export async function getAccessToken(): Promise<string> {
     const json = response.data;
 
     if (json.access_token) {
-        console.log('fflogs api initialized');
+        console.log('FFlogs api initialized');
+        if (IS_DEVELOPMENT) {
+            console.log(`FFlogs access_token: ${json.access_token}`);
+        }
         return json.access_token;
     } else {
         throw new Error('access_token is empty');

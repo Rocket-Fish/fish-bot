@@ -5,7 +5,11 @@ import { logger } from './middleware/logger';
 import { INIT } from './services/discord/commands/init';
 import { migrateGlobalComands } from './services/discord/migrateGlobalCommands';
 import { getAccessToken } from './services/fflogs/init';
-import { DATABASE_URL, PORT } from './services/discord/env';
+import { DATABASE_URL, IS_DEVELOPMENT, PORT } from './services/discord/env';
+
+if (IS_DEVELOPMENT) {
+    console.warn('STARTING IN DEVELOPMENT MODE, make sure this is set to false in production or stuff may be inadvertently logged');
+}
 
 const app = express();
 
@@ -25,6 +29,8 @@ getAccessToken()
 
 app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
-    console.log(DATABASE_URL);
+    if (IS_DEVELOPMENT) {
+        console.log(DATABASE_URL);
+    }
     migrateGlobalComands([INIT]);
 });

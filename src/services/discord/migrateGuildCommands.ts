@@ -7,7 +7,7 @@ export async function migrateGuildCommands(guildId: string, commands: Applicatio
     try {
         const installedCommands = await getGuildCommands(guildId);
         console.log(
-            `Installed commands on guild:${guildId}`,
+            `Installed commands on guild: ${guildId}`,
             installedCommands.map((c) => c.name)
         );
 
