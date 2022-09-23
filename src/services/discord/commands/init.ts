@@ -4,7 +4,7 @@ import { getGuildByDiscordId, createGuild, Guild } from '../../../models/Guild';
 import migrateGuildCommands from '../migrateGuildCommands';
 import { CONFIGURE_ROLE_BY_ZONE } from './configure-role-by-zone';
 import { TEST } from './test';
-import { defaultResponse, Status } from '../makeResponse';
+import { respondWithMessageInEmbed, Status } from '../respondToInteraction';
 import { LIST_ROLE_CONFIGURATION } from './list-role-configuration';
 import { SET_RULE_FOR_ROLE } from './set-rule-for-role';
 
@@ -30,12 +30,12 @@ export async function handleInit(req: Request, res: Response) {
         // mount default commands
         await migrateDefaultCommands(guild_id);
     } catch (e) {
-        res.send(defaultResponse('Initialization Failed', `${e}`, Status.failure));
+        res.send(respondWithMessageInEmbed('Initialization Failed', `${e}`, Status.failure));
     }
 
     if (guild) {
         return res.send(
-            defaultResponse(
+            respondWithMessageInEmbed(
                 'Initialization Skipped; Commands Updated',
                 `Server recognized as already initialized; Any modified server scoped slash commands has been updated`,
                 Status.warning
@@ -45,10 +45,10 @@ export async function handleInit(req: Request, res: Response) {
         try {
             await createGuild(guild_id);
             return res.send(
-                defaultResponse(`Initialization Complete`, 'Bot iniialized for this server and server slash commands has been installed')
+                respondWithMessageInEmbed(`Initialization Complete`, 'Bot iniialized for this server and server slash commands has been installed')
             );
         } catch (e) {
-            res.send(defaultResponse('Initialization Failed', `${e}`, Status.failure));
+            res.send(respondWithMessageInEmbed('Initialization Failed', `${e}`, Status.failure));
         }
     }
 }

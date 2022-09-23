@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { getGuildByDiscordId } from '../../../models/Guild';
 import { getRoles } from '../../../models/Role';
-import { defaultResponse, Status } from '../makeResponse';
+import { respondWithMessageInEmbed, Status } from '../respondToInteraction';
 import { ApplicationCommand, ApplicationCommandOptionTypes, ApplicationCommandTypes } from '../types';
 import { INIT } from './init';
 
@@ -43,7 +43,9 @@ export async function handleListRoleConfiguration(req: Request, res: Response) {
         const { guild_id } = req.body;
         const guild = await getGuildByDiscordId(guild_id);
         if (!guild) {
-            return res.send(defaultResponse(`List Role Configuration Failed`, `Guild not initialized; please run \`/${INIT.name}\``, Status.failure));
+            return res.send(
+                respondWithMessageInEmbed(`List Role Configuration Failed`, `Guild not initialized; please run \`/${INIT.name}\``, Status.failure)
+            );
         }
 
         // check if the guild matches the configurations record just to be safe
@@ -52,6 +54,6 @@ export async function handleListRoleConfiguration(req: Request, res: Response) {
 
         // TODO: finish this function
     } catch (e) {
-        res.send(defaultResponse('Configure Role Failed', `${e}`, Status.failure));
+        res.send(respondWithMessageInEmbed('Configure Role Failed', `${e}`, Status.failure));
     }
 }

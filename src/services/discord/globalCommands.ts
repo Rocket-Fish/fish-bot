@@ -1,4 +1,4 @@
-import discordRequest from './discordRequest';
+import requestToDiscord from './requestToDiscordAPI';
 import { APPLICATION_ID } from './env';
 import { ApplicationCommand, ApplicationCommandResponse, ApplicationCommandWithMandatoryId } from './types';
 
@@ -6,7 +6,7 @@ export async function getGlobalCommands(appId = APPLICATION_ID): Promise<Applica
     const endpoint = `applications/${appId}/commands`;
 
     // Send HTTP request with bot token
-    const res = await discordRequest(endpoint, {
+    const res = await requestToDiscord(endpoint, {
         method: 'get',
     });
 
@@ -17,7 +17,7 @@ export async function createGlobalCommand(command: ApplicationCommand, appId = A
     const endpoint = `applications/${appId}/commands`;
 
     // Send HTTP request with bot token
-    const res = await discordRequest(endpoint, {
+    const res = await requestToDiscord(endpoint, {
         method: 'post',
         data: command,
     });
@@ -28,7 +28,7 @@ export async function createGlobalCommand(command: ApplicationCommand, appId = A
 export async function updateGlobalCommand(command: ApplicationCommandWithMandatoryId, appId = APPLICATION_ID): Promise<ApplicationCommandResponse> {
     const endpoint = `applications/${appId}/commands/${command.id}`;
 
-    const res = await discordRequest(endpoint, {
+    const res = await requestToDiscord(endpoint, {
         method: 'patch',
         data: command,
     });
@@ -39,7 +39,7 @@ export async function updateGlobalCommand(command: ApplicationCommandWithMandato
 export async function deleteGlobalCommand(commandId: string, appId = APPLICATION_ID) {
     const endpoint = `applications/${appId}/commands/${commandId}`;
 
-    await discordRequest(endpoint, {
+    await requestToDiscord(endpoint, {
         method: 'delete',
     });
 }

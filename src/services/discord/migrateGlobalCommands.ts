@@ -1,5 +1,5 @@
 import { findCommandByName, hasCommandBeenChanged } from './commands';
-import { handleError } from './discordRequest';
+import { handleError } from './requestToDiscordAPI';
 import { createGlobalCommand, deleteGlobalCommand, getGlobalCommands, updateGlobalCommand } from './globalCommands';
 import { ApplicationCommand } from './types';
 

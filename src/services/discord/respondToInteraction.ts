@@ -172,7 +172,7 @@ export type InteractionResponse = {
  *
  * @returns Discord Message Object see: https://discord.com/developers/docs/resources/channel#message-object
  */
-export function defaultResponse(
+export function respondWithMessageInEmbed(
     title: string,
     description: string,
     status: Status = Status.success,

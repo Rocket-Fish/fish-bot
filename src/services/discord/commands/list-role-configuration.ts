@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { getGuildByDiscordId } from '../../../models/Guild';
 import { getRoles } from '../../../models/Role';
-import { defaultResponse, Status } from '../makeResponse';
+import { respondWithMessageInEmbed, Status } from '../respondToInteraction';
 import { ApplicationCommand, ApplicationCommandTypes } from '../types';
 import { INIT } from './init';
 
@@ -17,13 +17,17 @@ export async function handleListRoleConfiguration(req: Request, res: Response) {
         const { guild_id } = req.body;
         const guild = await getGuildByDiscordId(guild_id);
         if (!guild) {
-            return res.send(defaultResponse(`List Role Configuration Failed`, `Guild not initialized; please run \`/${INIT.name}\``, Status.failure));
+            return res.send(
+                respondWithMessageInEmbed(`List Role Configuration Failed`, `Guild not initialized; please run \`/${INIT.name}\``, Status.failure)
+            );
         }
 
         const roleList = await getRoles(guild.id);
 
         if (roleList.length === 0) {
-            return res.send(defaultResponse('Zero Role Configurations Found', 'You have not set up any role configurations', Status.warning));
+            return res.send(
+                respondWithMessageInEmbed('Zero Role Configurations Found', 'You have not set up any role configurations', Status.warning)
+            );
         } else {
             const StringifiedRoleList = roleList
                 .map(
@@ -31,9 +35,9 @@ export async function handleListRoleConfiguration(req: Request, res: Response) {
                         `Give <@&${discord_role_id}> to users whos ${rule.condition} is ${rule.comparison.type} ${rule.comparison.value} in ${rule.fflogsArea.type} ${rule.fflogsArea.value}`
                 )
                 .join('\n\n');
-            return res.send(defaultResponse(`Found ${roleList.length} Role Configurations`, StringifiedRoleList));
+            return res.send(respondWithMessageInEmbed(`Found ${roleList.length} Role Configurations`, StringifiedRoleList));
         }
     } catch (e) {
-        res.send(defaultResponse('Configure Role Failed', `${e}`, Status.failure));
+        res.send(respondWithMessageInEmbed('Configure Role Failed', `${e}`, Status.failure));
     }
 }

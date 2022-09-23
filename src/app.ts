@@ -5,6 +5,7 @@ import { logger } from './middleware/logger';
 import { INIT } from './services/discord/commands/init';
 import { migrateGlobalComands } from './services/discord/migrateGlobalCommands';
 import { getAccessToken } from './services/fflogs/init';
+import { DATABASE_URL, PORT } from './services/discord/env';
 
 const app = express();
 
@@ -22,8 +23,8 @@ getAccessToken()
         console.log(e);
     });
 
-app.listen(3000, () => {
-    console.log('Listening on port 3000');
-    console.log(process.env.DATABASE_URL);
+app.listen(PORT, () => {
+    console.log(`Listening on port ${PORT}`);
+    console.log(DATABASE_URL);
     migrateGlobalComands([INIT]);
 });

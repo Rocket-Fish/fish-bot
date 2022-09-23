@@ -1,5 +1,5 @@
 import { findCommandByName, hasCommandBeenChanged } from './commands';
-import { handleError } from './discordRequest';
+import { handleError } from './requestToDiscordAPI';
 import { getGuildCommands, createGuildCommand, updateGuildCommand, deleteGuildCommand } from './guildCommands';
 import { ApplicationCommand } from './types';
 

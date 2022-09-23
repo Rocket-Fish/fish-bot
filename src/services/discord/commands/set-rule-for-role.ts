@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { respondWithInteractiveComponent } from '../makeResponse';
+import { respondWithInteractiveComponent } from '../respondToInteraction';
 import { ApplicationCommand, ApplicationCommandTypes } from '../types';
 
 export const SET_RULE_FOR_ROLE: ApplicationCommand = {

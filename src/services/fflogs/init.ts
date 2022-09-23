@@ -1,4 +1,5 @@
 import { AxiosRequestConfig } from 'axios';
+import { FFLOGS_CLIENT_ID, FFLOGS_CLIENT_SECRET } from '../discord/env';
 import http, { HTTPError } from '../http';
 
 /**
@@ -11,7 +12,7 @@ export async function getAccessToken(): Promise<string> {
         url: 'https://www.fflogs.com/oauth/token',
         method: 'POST',
         headers: {
-            Authorization: `Basic ${Buffer.from(`${process.env.FFLOGS_CLIENT_ID}:${process.env.FFLOGS_CLIENT_SECRET}`).toString('base64')}`,
+            Authorization: `Basic ${Buffer.from(`${FFLOGS_CLIENT_ID}:${FFLOGS_CLIENT_SECRET}`).toString('base64')}`,
             'Content-Type': 'application/x-www-form-urlencoded;',
         },
         data: 'grant_type=client_credentials',

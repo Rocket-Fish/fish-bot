@@ -1,11 +1,12 @@
 import type { Knex } from 'knex';
+import { DATABASE_URL } from './src/services/discord/env';
 
 // Update with your config settings.
 
 const config: { [key: string]: Knex.Config } = {
     development: {
         client: 'pg',
-        connection: process.env.DATABASE_URL,
+        connection: DATABASE_URL,
         migrations: {
             tableName: 'knex_migrations',
             directory: __dirname + '/src/db/migrations',

@@ -4,7 +4,7 @@ import { Comparisons, Conditions, purpleCount } from './options';
 import { createRole, Rule } from '../../../models/Role';
 import { getGuildByDiscordId } from '../../../models/Guild';
 import { INIT } from './init';
-import { defaultResponse, Status } from '../makeResponse';
+import { respondWithMessageInEmbed, Status } from '../respondToInteraction';
 
 export const CONFIGURE_ROLE_BY_ZONE: ApplicationCommand = {
     name: 'configure-role-by-zone',
@@ -75,7 +75,9 @@ export async function handleConfigureRoleByZone(req: Request, res: Response) {
 
         const guild = await getGuildByDiscordId(data.guild_id);
         if (!guild) {
-            return res.send(defaultResponse(`Configure Role Failed`, `Guild not initialized; please run \`/${INIT.name}\``, Status.failure));
+            return res.send(
+                respondWithMessageInEmbed(`Configure Role Failed`, `Guild not initialized; please run \`/${INIT.name}\``, Status.failure)
+            );
         }
 
         const rule: Rule = {
@@ -89,13 +91,13 @@ export async function handleConfigureRoleByZone(req: Request, res: Response) {
         await createRole(guild.id, roleNumber, rule);
 
         return res.send(
-            defaultResponse(
+            respondWithMessageInEmbed(
                 `Role Configuration Successfully Added`,
                 `Role <@&${roleNumber}> will be given to users who has ${rule.condition} ${rule.comparison.type} ${rule.comparison.value} in ${rule.fflogsArea.type} ${rule.fflogsArea.value}`
             )
         );
     } catch (e) {
-        if (e instanceof TypeError) return res.send(defaultResponse('Error', 'Invalid Request structure', Status.failure));
-        else return res.send(defaultResponse('Configure Role Failed', `${e}`, Status.failure));
+        if (e instanceof TypeError) return res.send(respondWithMessageInEmbed('Error', 'Invalid Request structure', Status.failure));
+        else return res.send(respondWithMessageInEmbed('Configure Role Failed', `${e}`, Status.failure));
     }
 }
