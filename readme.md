@@ -40,3 +40,31 @@ https://knexjs.org
 https://devhints.io/knex
 
 https://en.wikipedia.org/wiki/Snowflake_ID
+
+## Notes about fflogs
+
+### Difficulty
+
+```json
+{
+    "id": 101,
+    "name": "Savage",
+    "sizes": [
+        8
+    ]
+},
+{
+    "id": 100,
+    "name": "Normal",
+    "sizes": [
+        8
+    ]
+},
+{
+    "id": 10,
+    "name": "Dungeon",
+    "sizes": [
+        4
+    ]
+}
+```
