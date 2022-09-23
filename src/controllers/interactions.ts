@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { CONFIGURE_ROLE_BY_ZONE, handleConfigureRoleByZone } from '../services/discord/commands/configure-role-by-zone';
 import { handleInit, INIT } from '../services/discord/commands/init';
 import { handleListRoleConfiguration, LIST_ROLE_CONFIGURATION } from '../services/discord/commands/list-role-configuration';
+import { handleSetRuleForRole, SET_RULE_FOR_ROLE } from '../services/discord/commands/set-rule-for-role';
 import { handleTest, TEST } from '../services/discord/commands/test';
 
 export async function handleInteractions(req: Request, res: Response) {
@@ -31,6 +32,8 @@ export async function handleInteractions(req: Request, res: Response) {
                 return await handleConfigureRoleByZone(req, res);
             case LIST_ROLE_CONFIGURATION.name:
                 return await handleListRoleConfiguration(req, res);
+            case SET_RULE_FOR_ROLE.name:
+                return await handleSetRuleForRole(req, res);
             default:
                 return res.send({
                     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
