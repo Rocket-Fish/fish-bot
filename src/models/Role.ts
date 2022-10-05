@@ -1,5 +1,4 @@
 import db from '../db';
-import { Comparisons, Conditions } from '../services/discord/commands/options';
 
 /**
  * Rule Object to be converted into a JSON string
@@ -12,8 +11,8 @@ import { Comparisons, Conditions } from '../services/discord/commands/options';
  */
 
 export type Role = {
-    id: number; // TODO: redo database and turn this into a uuid
-    guild_id: number;
+    id: string;
+    guild_id: string;
     discord_role_id: string;
     rule: Rule;
     created_at: number;
@@ -31,15 +30,28 @@ export type FFlogsArea = {
     value: number;
 };
 
-export type Rule = {
-    fflogsArea: FFlogsArea;
-    condition: Conditions;
-    comparison: { type: Comparisons; value: number };
+export enum RuleType {
+    noone = 'noone',
+    everyone = 'everyone',
+    fflogs = 'fflogs',
+}
+
+export type FFlogsRule = {
+    type: RuleType.fflogs;
+    area: FFlogsArea;
+    operand: string; // TODO
+    condition: string; //TODO
 };
+
+export type Rule =
+    | FFlogsRule
+    | {
+          type: Exclude<RuleType, RuleType.fflogs>;
+      };
 
 const tableName = 'roles';
 
-export function createRole(forGuild: number, discordRoleId: string, rule: Rule): Promise<void> {
+export function createRole(forGuild: string, discordRoleId: string, rule: Rule): Promise<void> {
     return new Promise((resolve, reject) => {
         db.from<RoleStringified>(tableName)
             .insert({ guild_id: forGuild, discord_role_id: discordRoleId, rule: JSON.stringify(rule) })
@@ -48,11 +60,21 @@ export function createRole(forGuild: number, discordRoleId: string, rule: Rule):
     });
 }
 
-export function getRoles(forGuild: number): Promise<Role[]> {
+export function getRoles(forGuild: string): Promise<Role[]> {
     return new Promise((resolve, reject) => {
         db.from<Role>(tableName)
             .where('guild_id', forGuild)
             .then((roles) => resolve(roles))
+            .catch((e) => reject(e));
+    });
+}
+
+export function deleteRole(id: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        db.from(tableName)
+            .where('id', id)
+            .del()
+            .then(() => resolve())
             .catch((e) => reject(e));
     });
 }

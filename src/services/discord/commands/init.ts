@@ -2,13 +2,11 @@ import { Request, Response } from 'express';
 import { ApplicationCommand, ApplicationCommandTypes } from '../types';
 import { getGuildByDiscordId, createGuild, Guild } from '../../../models/Guild';
 import migrateGuildCommands from '../migrateGuildCommands';
-import { CONFIGURE_ROLE_BY_ZONE } from './configure-role-by-zone';
-import { TEST } from './test';
+import { test } from './test';
 import { respondWithMessageInEmbed, Status } from '../respondToInteraction';
-import { LIST_ROLE_CONFIGURATION } from './list-role-configuration';
-import { SET_RULE_FOR_ROLE } from './set-rule-for-role';
+import { role } from './role';
 
-export const INIT: ApplicationCommand = {
+export const init: ApplicationCommand = {
     name: 'initialize',
     description: 'Initialize the bot to this server and install server commands',
     type: ApplicationCommandTypes.CHAT_INPUT,
@@ -17,7 +15,7 @@ export const INIT: ApplicationCommand = {
 };
 
 async function migrateDefaultCommands(guildId: string) {
-    return migrateGuildCommands(guildId, [TEST, CONFIGURE_ROLE_BY_ZONE, LIST_ROLE_CONFIGURATION, SET_RULE_FOR_ROLE]);
+    return migrateGuildCommands(guildId, [test, role]);
 }
 
 export async function handleInit(req: Request, res: Response) {

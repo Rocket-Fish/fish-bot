@@ -3,11 +3,15 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/app.js",
+  "nodemonConfig": {
+    "delay": 2000
+  },
   "scripts": {
     "start": "node dist/app.js",
     "build": "tsc",
     "dev": "nodemon ./src/app.ts",
-    "migrate:latest": "knex migrate:latest"
+    "migrate:latest": "knex migrate:latest",
+    "migrate:rollback": "knex migrate:rollback"
   },
   "repository": {
     "type": "git",

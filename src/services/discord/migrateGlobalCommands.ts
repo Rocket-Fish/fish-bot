@@ -1,8 +1,12 @@
 import { findCommandByName, hasCommandBeenChanged } from './commands';
-import { handleError } from './requestToDiscordAPI';
+import { logFailedRequestToDiscord } from './requestToDiscordAPI';
 import { createGlobalCommand, deleteGlobalCommand, getGlobalCommands, updateGlobalCommand } from './globalCommands';
 import { ApplicationCommand } from './types';
 
+/**
+ *
+ * @throws Error
+ */
 export async function migrateGlobalComands(commands: ApplicationCommand[]) {
     try {
         const installedCommands = await getGlobalCommands();
@@ -12,39 +16,32 @@ export async function migrateGlobalComands(commands: ApplicationCommand[]) {
         );
 
         // install or command if necessary
-        commands.forEach(async (command) => {
-            try {
-                const installedCommand = findCommandByName(command.name, installedCommands);
-                // check if command is installed
-                if (installedCommand) {
-                    // check if command needs migration
-                    if (hasCommandBeenChanged(command, installedCommand)) {
-                        // update command
-                        await updateGlobalCommand({ id: installedCommand.id, ...command });
-                    }
-                } else {
-                    console.log(`installing /${command.name} globally`);
-                    const newCommand = await createGlobalCommand(command);
-                    installedCommands.push(newCommand);
+        for (const command of commands) {
+            const installedCommand = findCommandByName(command.name, installedCommands);
+            // check if command is installed
+            if (installedCommand) {
+                // check if command needs migration
+                if (hasCommandBeenChanged(command, installedCommand)) {
+                    // update command
+                    await updateGlobalCommand({ id: installedCommand.id, ...command });
                 }
-            } catch (e) {
-                handleError(e);
+            } else {
+                console.log(`installing /${command.name} globally`);
+                const newCommand = await createGlobalCommand(command);
+                installedCommands.push(newCommand);
             }
-        });
+        }
 
         // delete orphaned commands
-        installedCommands.forEach(async (ic) => {
-            try {
-                const localComponent = findCommandByName(ic.name, commands);
-                if (!localComponent) {
-                    await deleteGlobalCommand(ic.id);
-                }
-            } catch (e) {
-                handleError(e);
+        for (const ic of installedCommands) {
+            const localComponent = findCommandByName(ic.name, commands);
+            if (!localComponent) {
+                await deleteGlobalCommand(ic.id);
             }
-        });
+        }
     } catch (e) {
-        handleError(e);
+        logFailedRequestToDiscord(e);
+        throw e;
     }
 }
 

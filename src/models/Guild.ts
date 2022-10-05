@@ -16,7 +16,7 @@
 import db from '../db';
 
 export type Guild = {
-    id: number;
+    id: string;
     discord_guild_id: string;
     created_at: number;
     updated_at: number;
@@ -41,4 +41,11 @@ export function createGuild(discordGuildId: string): Promise<void> {
             .then(() => resolve())
             .catch((e) => reject(e));
     });
+}
+
+export class GuildNotFoundError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'GuildNotFoundError';
+    }
 }

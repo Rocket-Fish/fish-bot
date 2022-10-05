@@ -1,5 +1,12 @@
 # Running Fish Bot
 
+## Maybe strange styling choices:
+
+1. `export const ENV_VARIABLE_NAME = process.env.ENV_VARIABLE_NAME;` using capitalized snake case here becuase these are effectively global variables.
+2. `export enum DiscordType { GUILD_TEXT = 1}` the property is capitalized snake case because discord api does it so doing it for consistenty
+
+Everything else should follow standard typescript guidelines
+
 ## Setup env variables
 
 // TODO: write about setup env variables

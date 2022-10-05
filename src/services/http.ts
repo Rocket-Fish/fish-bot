@@ -24,6 +24,7 @@ export class HTTPError extends Error {
     data: any | undefined;
     constructor(url: string, code: string, message: string, data?: any) {
         super();
+        this.name = 'HTTPError';
         this.url = url;
         this.code = code;
         this.message = message;

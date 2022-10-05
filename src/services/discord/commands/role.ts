@@ -1,0 +1,178 @@
+import { Request, Response } from 'express';
+import { Guild } from '../../../models/Guild';
+import { createRole, getRoles, Role, Rule, RuleType } from '../../../models/Role';
+import { HTTPError } from '../../http';
+import { createActionRowComponent, SelectOptions } from '../components';
+import { makeDeleteRoleConfigMenu } from '../components/delete-role-config-menu';
+import requestToDiscord from '../requestToDiscordAPI';
+import { respondWithInteractiveComponent, respondWithMessageInEmbed, Status } from '../respondToInteraction';
+import { ApplicationCommand, ApplicationCommandOptionTypes, ApplicationCommandTypes } from '../types';
+import { discordRoleSelector } from './options/discord-role-selector';
+import { roleConditionTypeSelector } from './options/role-condition-type-selector';
+import { ActionNotImplemented } from './types';
+
+enum RoleOptions {
+    create = 'create',
+    list = 'list',
+    delete = 'delete',
+}
+
+export const role: ApplicationCommand = {
+    name: 'role',
+    description: 'Manage role configurations',
+    type: ApplicationCommandTypes.CHAT_INPUT,
+    options: [
+        {
+            name: RoleOptions.create,
+            description: 'Create a role configuration',
+            type: ApplicationCommandOptionTypes.SUB_COMMAND,
+            options: [discordRoleSelector, roleConditionTypeSelector],
+        },
+        {
+            name: RoleOptions.list,
+            description: 'List all role configurations',
+            type: ApplicationCommandOptionTypes.SUB_COMMAND,
+        },
+        {
+            name: RoleOptions.delete,
+            description: 'Delete a role configuration, you will have the opportunity to select which one to delete',
+            type: ApplicationCommandOptionTypes.SUB_COMMAND,
+        },
+    ],
+    default_member_permissions: '0', // default to disable for everyone except server admins
+};
+
+/*sample body data 
+{
+    guild_id: '1002952001379893248',
+    id: '1025915642529988668',
+    name: 'role',
+    options: [
+        {
+            name: 'create',
+            options: [
+                { name: 'role', type: 8, value: '1002952001379893248' },
+                { name: 'condition', type: 3, value: 'noone' }
+            ],
+            type: 1
+        }
+    ],
+    resolved: {
+        roles: {
+            '1002952001379893248': {
+                color: 0,
+                flags: 0,
+                hoist: false,
+                icon: null,
+                id: '1002952001379893248',
+                managed: false,
+                mentionable: false,
+                name: '@everyone',
+                permissions: '1071698660929',
+                position: 0,
+                unicode_emoji: null
+            }
+        }
+    },
+    type: 1
+}
+*/
+
+/**
+ *
+ * @throws Error
+ */
+export async function handleRoleCommand(req: Request, res: Response) {
+    const { data } = req.body;
+
+    const roleOption = data.options[0];
+    switch (roleOption.name) {
+        case RoleOptions.create:
+            return onCreate(req, res);
+        case RoleOptions.list:
+            return onList(req, res);
+        case RoleOptions.delete:
+            return onDelete(req, res);
+        default:
+            throw new ActionNotImplemented();
+    }
+}
+
+async function onCreate(req: Request, res: Response) {
+    const { data } = req.body;
+    const guild: Guild = res.locals.guild;
+
+    const roleOption = data.options[0];
+    const params = roleOption.options;
+    const discordRole = params[0].value;
+    const condition = params[1].value;
+
+    switch (condition) {
+        case RuleType.everyone: {
+            const rule: Rule = { type: RuleType.everyone };
+            await createRole(guild.id, discordRole, rule);
+            return res.send(
+                respondWithMessageInEmbed(
+                    `Role Rule Created`,
+                    `Role <@&${discordRole}> will be given to every member, unless another role in role-group has higher priority`,
+                    Status.success
+                )
+            );
+        }
+        case RuleType.noone: {
+            const rule: Rule = { type: RuleType.noone };
+            await createRole(guild.id, discordRole, rule);
+            return res.send(
+                respondWithMessageInEmbed(`Role Rule Created`, `Role <@&${discordRole}> will be removed from anyone who has it`, Status.success)
+            );
+        }
+        case RuleType.fflogs:
+        // TODO
+        default:
+            throw new ActionNotImplemented();
+    }
+}
+
+function convertRoleConfigToSentance(role: Role) {
+    const { rule } = role;
+    switch (rule.type) {
+        case RuleType.everyone:
+            return `Role will be given to everyone`;
+        case RuleType.noone:
+            return `Role should be remove-only`;
+        case RuleType.fflogs:
+        // TODO: `Give role to users whos ...`
+        default:
+            return 'Error converting role config to description';
+    }
+}
+
+async function onList(req: Request, res: Response) {
+    const guild: Guild = res.locals.guild;
+    const roleList = await getRoles(guild.id);
+
+    if (roleList.length === 0) {
+        return res.send(respondWithMessageInEmbed('Zero Role Configurations Found', 'You have not set up any role configurations', Status.warning));
+    } else {
+        const StringifiedRoleList = roleList.map((r) => `<@&${r.discord_role_id}>: ${convertRoleConfigToSentance(r)}`).join('\n\n');
+        return res.send(respondWithMessageInEmbed(`Found ${roleList.length} Role Configurations`, StringifiedRoleList));
+    }
+}
+
+async function onDelete(req: Request, res: Response) {
+    const guild: Guild = res.locals.guild;
+    const roleList = await getRoles(guild.id);
+
+    if (roleList.length === 0) {
+        return res.send(respondWithMessageInEmbed('Nothing to delete', 'You have not set up any role configurations', Status.warning));
+    } else {
+        const guildRoleList = (await requestToDiscord(`guilds/${guild.discord_guild_id}/roles`)).data;
+
+        const menuOptionsList: SelectOptions[] = roleList.map((r) => ({
+            label: `@${guildRoleList.find((rr: any) => rr.id === r.discord_role_id)?.name || r.discord_role_id}`,
+            value: r.id,
+            description: convertRoleConfigToSentance(r),
+        }));
+        return res.send(respondWithInteractiveComponent('', [createActionRowComponent([makeDeleteRoleConfigMenu(menuOptionsList)])]));
+    }
+}

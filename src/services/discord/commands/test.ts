@@ -2,7 +2,7 @@ import { InteractionResponseType } from 'discord-interactions';
 import { Request, Response } from 'express';
 import { ApplicationCommand, ApplicationCommandTypes } from '../types';
 
-export const TEST: ApplicationCommand = {
+export const test: ApplicationCommand = {
     name: 'test',
     description: 'Check if FishBot is alive',
     type: ApplicationCommandTypes.CHAT_INPUT,

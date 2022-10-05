@@ -1,6 +1,6 @@
 export const APPLICATION_ID = process.env.DISCORD_APPLICATION_ID || '';
 export const DATABASE_URL = process.env.DATABASE_URL;
-export const PORT = process.env.PORT;
+export const PORT = process.env.PORT || '3000';
 export const NODE_ENV = process.env.NODE_ENV || 'development';
 export const IS_DEVELOPMENT = NODE_ENV === 'development';
 export const DISCORD_PUBLIC_KEY = process.env.DISCORD_PUBLIC_KEY || '';

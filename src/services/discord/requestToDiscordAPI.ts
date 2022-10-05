@@ -19,7 +19,7 @@ export async function requestToDiscord(endpoint: string, config?: AxiosRequestCo
     return res;
 }
 
-export function handleError(err: unknown) {
+export function logFailedRequestToDiscord(err: unknown) {
     if (err instanceof HTTPError)
         console.error(
             `Error while making request to discord: ${err.url} | ${err.code} | ${err.message}\n`,

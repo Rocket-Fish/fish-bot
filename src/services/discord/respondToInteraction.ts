@@ -1,9 +1,11 @@
 import { InteractionResponseFlags, InteractionResponseType } from 'discord-interactions';
+import { Component } from './components';
 
 export enum Status {
     success = 'success',
     failure = 'failure',
     warning = 'warning',
+    info = 'info',
 }
 
 type StatusToColor = {
@@ -14,6 +16,7 @@ const statusToColor: StatusToColor = {
     [Status.success]: 0x00ff00,
     [Status.failure]: 0xff0000,
     [Status.warning]: 0xffa500,
+    [Status.info]: 0xeaeaea,
 };
 
 export type Embeds = {
@@ -64,69 +67,6 @@ export type Embeds = {
 };
 
 export type AllowedMention = 'roles' | 'users' | 'everyone';
-
-export enum ComponentType {
-    actionRow = 1,
-    button = 2,
-    selectMenu = 3,
-    textInput = 4,
-}
-
-export enum ComponentButtonStyles {
-    primary = 1, // blurple, requires custom_id
-    secondary = 2, // grey, requires custom_id
-    success = 3, // green, requires custom_id
-    danger = 4, // red, requires custom_id
-    link = 5, // grey, requires url
-}
-
-export type Emoji = {
-    id: string | null; // snowflake for custom discord emojies, null for standard emojies
-    name: string | null; // can be null only in reaction emoji objects
-    roles?: string[];
-    user?: any;
-    require_colons?: boolean;
-    manage?: boolean;
-    animated?: boolean;
-    available?: boolean;
-};
-
-export type ComponentButton = {
-    type: ComponentType.button;
-    style: ComponentButtonStyles;
-    custom_id?: string; // required for most styles
-    url?: string; // required for the link style
-    label?: string; // max 80 chars
-    emoji?: Emoji;
-    disabled?: boolean;
-};
-
-export type SelectOptions = {
-    label: string;
-    value: string;
-    description?: string;
-    emoji?: Emoji;
-    default?: boolean;
-};
-
-export type ComponentMenu = {
-    type: ComponentType.selectMenu;
-    custom_id: string;
-    options: SelectOptions[]; // 25 max
-    placeholder?: string;
-    min_values?: number; // min number chosen; default 1, min 0, max 25
-    max_values?: number; // maximum number of items that can be chosen; default 1, max 25
-    disabled?: boolean;
-};
-
-export type ComponentActionRow = {
-    type: ComponentType.actionRow;
-    components?: (ComponentButton | ComponentMenu)[];
-};
-
-export type Component = ComponentActionRow & {
-    components?: (ComponentButton | ComponentMenu | ComponentActionRow)[];
-};
 
 export type Attachment = {
     id: string; // snowflake
@@ -195,15 +135,29 @@ export function respondWithMessageInEmbed(
     };
 }
 
-export function respondWithInteractiveComponent(components: Component[], allowedMentions: AllowedMention[] = []): InteractionResponse {
+export function respondWithInteractiveComponent(
+    message: string,
+    components: Component[],
+    allowedMentions: AllowedMention[] = []
+): InteractionResponse {
     return {
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
             flags: InteractionResponseFlags.EPHEMERAL,
             components,
+            content: message,
             allowed_mentions: {
                 parse: allowedMentions,
             },
+        },
+    };
+}
+
+export function respondWithInteractionUpdate(content: string): InteractionResponse {
+    return {
+        type: InteractionResponseType.UPDATE_MESSAGE,
+        data: {
+            content,
         },
     };
 }

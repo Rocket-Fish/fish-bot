@@ -6,3 +6,10 @@ export type ApplicationCommandOptionWSubCommand = ApplicationCommandOption & {
 export type ApplicationCommandOptionWSubCommandGroup = ApplicationCommandOption & {
     type: ApplicationCommandOptionTypes.SUB_COMMAND_GROUP;
 };
+
+export class ActionNotImplemented extends Error {
+    constructor() {
+        super('Action not implemeted');
+        this.name = 'ActionNotImplemented';
+    }
+}

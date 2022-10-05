@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import router from './router';
 import { logger } from './middleware/logger';
-import { INIT } from './services/discord/commands/init';
+import { init } from './services/discord/commands/init';
 import { migrateGlobalComands } from './services/discord/migrateGlobalCommands';
 import { getAccessToken } from './services/fflogs/init';
 import { DATABASE_URL, IS_DEVELOPMENT, PORT } from './services/discord/env';
@@ -32,5 +32,5 @@ app.listen(PORT, () => {
     if (IS_DEVELOPMENT) {
         console.log(DATABASE_URL);
     }
-    migrateGlobalComands([INIT]);
+    migrateGlobalComands([init]);
 });
