@@ -52,5 +52,7 @@ services:
         image: redis
         expose: 
             - 6379
+        ports:
+            - '6379:6379'
 volumes:
     data: {}

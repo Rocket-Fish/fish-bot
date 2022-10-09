@@ -28,6 +28,8 @@ export const forEachMember: ApplicationCommand = {
     default_member_permissions: '0', // default to disable for everyone except server admins
 };
 
+async function ensureOneInstance(req: Request, res: Response) {}
+
 export async function handleForEachMember(req: Request, res: Response) {
     const { data } = req.body;
 
@@ -136,6 +138,6 @@ async function performRoleUpdate(guild: Guild, roleList: Role[], members: GuildM
         await redisClient.set(`guild-${guild.id}`, JSON.stringify(status));
     } catch (e) {
         // catch system errors
-        console.error(e);
+        console.log(e);
     }
 }

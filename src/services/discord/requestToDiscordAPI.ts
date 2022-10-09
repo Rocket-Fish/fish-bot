@@ -17,7 +17,7 @@ export async function requestToDiscord(endpoint: string, config?: AxiosRequestCo
     // append endpoint to root API URL
     const url = 'https://discord.com/api/v10/' + endpoint;
     try {
-        return http({
+        return await http({
             url,
             headers: {
                 Authorization: `Bot ${DISCORD_TOKEN}`,
@@ -46,7 +46,7 @@ export async function requestToDiscord(endpoint: string, config?: AxiosRequestCo
 
 function logFailedRequestToDiscord(err: unknown) {
     if (err instanceof HTTPError)
-        console.error(
+        console.log(
             `Error while making request to discord: ${err.url} | ${err.code} | ${err.message}\n`,
             util.inspect(err.data, {
                 showHidden: false,
@@ -54,7 +54,7 @@ function logFailedRequestToDiscord(err: unknown) {
                 colors: true,
             })
         );
-    else console.error('Unkown error has occured');
+    else console.log('Unkown error has occured');
 }
 
 export default requestToDiscord;

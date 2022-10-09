@@ -14,7 +14,7 @@ instance.interceptors.request.use((r) => {
 instance.interceptors.response.use(
     (r) => r,
     (err) => {
-        throw new HTTPError(err.request?.url || '<unavailable URL>', err.code, err.message, err.response?.code, err.response?.data);
+        throw new HTTPError(err.response?.config?.url || '<unavailable URL>', err.code, err.message, err.response?.status, err.response?.data);
     }
 );
 
