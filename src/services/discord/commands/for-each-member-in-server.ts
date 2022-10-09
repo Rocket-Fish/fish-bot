@@ -28,11 +28,9 @@ export const forEachMember: ApplicationCommand = {
     default_member_permissions: '0', // default to disable for everyone except server admins
 };
 
-async function ensureOneInstance(req: Request, res: Response) {}
-
 export async function handleForEachMember(req: Request, res: Response) {
     const { data } = req.body;
-
+    ensureOneInstance(req, res);
     const option = data.options[0];
     switch (option.name) {
         case ActionForEachMember.updateRoles:
@@ -40,6 +38,29 @@ export async function handleForEachMember(req: Request, res: Response) {
         default:
             throw new ActionNotImplemented();
     }
+}
+
+/**
+ *
+ * @throws Error if there is an active for-each-member instance running
+ */
+async function ensureOneInstance(req: Request, res: Response) {
+    const guild: Guild = res.locals.guild;
+    const json = await redisClient.get(makeRedisKey(guild.id));
+    if (json) {
+        const status: RoleUpdateStatus = JSON.parse(json);
+        if (!status.isComplete) {
+            throw new Error('This is an expensive operation, you can only have ONE expensive operation running at a time');
+        }
+    }
+}
+
+export function makeRedisKey(guildId: string) {
+    return `4EachMemberIn-${guildId}`;
+}
+
+export async function updateCache(guildId: string, value: any) {
+    return await redisClient.setEx(makeRedisKey(guildId), 60 * 60, JSON.stringify(value));
 }
 
 async function onUpdateRoles(req: Request, res: Response) {
@@ -75,7 +96,7 @@ export type RoleUpdateStatus = {
 async function performRoleUpdate(guild: Guild, roleList: Role[], members: GuildMember[]) {
     try {
         const status: RoleUpdateStatus = { progress: `0/${members.length}`, problems: [], isComplete: false };
-        await redisClient.set(`guild-${guild.id}`, JSON.stringify(status));
+        await updateCache(guild.id, status);
         let counter = 0;
 
         for (const member of members) {
@@ -105,12 +126,12 @@ async function performRoleUpdate(guild: Guild, roleList: Role[], members: GuildM
                             case RuleType.fflogs:
                             // TODO: `Give role to users whos ...`
                             default:
-                                status.problems.push(`System error: RuleType [${role.rule.type}] not supported`);
+                                status.problems.push(`RuleType [${role.rule.type}] not supported`);
                                 break;
                         }
                     } catch (e) {
                         // catch role errors
-                        let problem = `Unable to handle role <@&${role.discord_role_id}> on <@${member.user.id}> - `;
+                        let problem = `<@&${role.discord_role_id}> <@${member.user.id}> - `;
                         if (e instanceof Error) {
                             problem = problem + e.message;
                         } else {
@@ -122,7 +143,7 @@ async function performRoleUpdate(guild: Guild, roleList: Role[], members: GuildM
             } catch (e) {
                 // catch member errors
                 // catch role errors
-                let problem = `Unable to handle <@${member.user.id}> - `;
+                let problem = `<@${member.user.id}> - `;
                 if (e instanceof Error) {
                     problem = problem + e.message;
                 } else {
@@ -132,10 +153,10 @@ async function performRoleUpdate(guild: Guild, roleList: Role[], members: GuildM
             }
 
             status.progress = `${counter}/${members.length}`;
-            await redisClient.set(`guild-${guild.id}`, JSON.stringify(status));
+            await updateCache(guild.id, status);
         }
         status.isComplete = true;
-        await redisClient.set(`guild-${guild.id}`, JSON.stringify(status));
+        await updateCache(guild.id, status);
     } catch (e) {
         // catch system errors
         console.log(e);
