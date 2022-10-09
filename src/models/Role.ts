@@ -78,3 +78,13 @@ export function deleteRole(id: string): Promise<void> {
             .catch((e) => reject(e));
     });
 }
+
+export function deleteAllRolesFromGuild(guildId: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        db.from(tableName)
+            .where('guild_id', guildId)
+            .del()
+            .then(() => resolve())
+            .catch((e) => reject(e));
+    });
+}

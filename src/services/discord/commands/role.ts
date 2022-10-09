@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
+import { request } from 'http';
 import { Guild } from '../../../models/Guild';
-import { createRole, getRoles, Role, Rule, RuleType } from '../../../models/Role';
+import { createRole, deleteAllRolesFromGuild, getRoles, Role, Rule, RuleType } from '../../../models/Role';
 import { createActionRowComponent, SelectOptions } from '../components';
 import { makeDeleteRoleConfigMenu } from '../components/delete-role-config-menu';
 import { getGuildRoles } from '../guilds';
@@ -14,6 +15,7 @@ enum RoleOptions {
     create = 'create',
     list = 'list',
     delete = 'delete',
+    deleteAll = 'delete-all',
 }
 
 export const role: ApplicationCommand = {
@@ -35,6 +37,11 @@ export const role: ApplicationCommand = {
         {
             name: RoleOptions.delete,
             description: 'Delete a role configuration, you will have the opportunity to select which one to delete',
+            type: ApplicationCommandOptionTypes.SUB_COMMAND,
+        },
+        {
+            name: RoleOptions.deleteAll,
+            description: 'Delete all the role configurations',
             type: ApplicationCommandOptionTypes.SUB_COMMAND,
         },
     ],
@@ -92,6 +99,8 @@ export async function handleRoleCommand(req: Request, res: Response) {
             return onList(req, res);
         case RoleOptions.delete:
             return onDelete(req, res);
+        case RoleOptions.deleteAll:
+            return onDeleteAl(req, res);
         default:
             throw new ActionNotImplemented();
     }
@@ -174,4 +183,12 @@ async function onDelete(req: Request, res: Response) {
         }));
         return res.send(respondWithInteractiveComponent('', [createActionRowComponent([makeDeleteRoleConfigMenu(menuOptionsList)])]));
     }
+}
+
+async function onDeleteAl(req: Request, res: Response) {
+    const guild: Guild = res.locals.guild;
+
+    await deleteAllRolesFromGuild(guild.id);
+
+    return res.send(respondWithMessageInEmbed(`Success`, 'All role configurations has been deleted'));
 }
