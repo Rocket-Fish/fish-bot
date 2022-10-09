@@ -1,4 +1,5 @@
-TODO: NEED TO TEST if i can delete current bot componented message and send a new one to immitate clicking 'next'
+NEED TO TEST if i can delete current bot componented message and send a new one to immitate clicking 'next'
+[YES above is possible]
 
 
 Menus should be used on stuff that is not discord dependant but is server data dependant.
@@ -16,10 +17,6 @@ Discord does not allow passing string to the backend within the Menus, so raw st
 
 [done]
 /role list
-
-/role view
-    Menu:
-    - role for rule to be viewed in detail
 
 [done]
 /role delete
@@ -59,7 +56,6 @@ Discord does not allow passing string to the backend within the Menus, so raw st
 
 /update-my-roles
 
-/for-each-member-in-server reset-roles
-
+[partial implementation]
 /for-each-member-in-server update-roles
 
