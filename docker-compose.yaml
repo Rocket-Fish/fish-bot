@@ -31,10 +31,12 @@ services:
             - '3000:3000'
         depends_on:
             - postgres
+            - redis
         env_file:
             - '.env'
         environment:
             DATABASE_URL: postgres://fish-bot-user:fish-bot-pwd@postgres:5432/fish-bot
+            REDIS_URL: redis://redis:6379
     postgres:
         image: postgres
         restart: always
@@ -46,5 +48,9 @@ services:
             - '5432:5432'
         volumes:
             - data:/var/lib/postgresql/data/
+    redis:
+        image: redis
+        expose: 
+            - 6379
 volumes:
     data: {}

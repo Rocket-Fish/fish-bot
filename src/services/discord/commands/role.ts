@@ -1,10 +1,9 @@
 import { Request, Response } from 'express';
 import { Guild } from '../../../models/Guild';
 import { createRole, getRoles, Role, Rule, RuleType } from '../../../models/Role';
-import { HTTPError } from '../../http';
 import { createActionRowComponent, SelectOptions } from '../components';
 import { makeDeleteRoleConfigMenu } from '../components/delete-role-config-menu';
-import requestToDiscord from '../requestToDiscordAPI';
+import { getGuildRoles } from '../guilds';
 import { respondWithInteractiveComponent, respondWithMessageInEmbed, Status } from '../respondToInteraction';
 import { ApplicationCommand, ApplicationCommandOptionTypes, ApplicationCommandTypes } from '../types';
 import { discordRoleSelector } from './options/discord-role-selector';
@@ -154,7 +153,7 @@ async function onList(req: Request, res: Response) {
     if (roleList.length === 0) {
         return res.send(respondWithMessageInEmbed('Zero Role Configurations Found', 'You have not set up any role configurations', Status.warning));
     } else {
-        const StringifiedRoleList = roleList.map((r) => `<@&${r.discord_role_id}>: ${convertRoleConfigToSentance(r)}`).join('\n\n');
+        const StringifiedRoleList = roleList.map((r) => `<@&${r.discord_role_id}>: ${convertRoleConfigToSentance(r)}`).join('\n');
         return res.send(respondWithMessageInEmbed(`Found ${roleList.length} Role Configurations`, StringifiedRoleList));
     }
 }
@@ -166,7 +165,7 @@ async function onDelete(req: Request, res: Response) {
     if (roleList.length === 0) {
         return res.send(respondWithMessageInEmbed('Nothing to delete', 'You have not set up any role configurations', Status.warning));
     } else {
-        const guildRoleList = (await requestToDiscord(`guilds/${guild.discord_guild_id}/roles`)).data;
+        const guildRoleList = await getGuildRoles(guild.discord_guild_id);
 
         const menuOptionsList: SelectOptions[] = roleList.map((r) => ({
             label: `@${guildRoleList.find((rr: any) => rr.id === r.discord_role_id)?.name || r.discord_role_id}`,

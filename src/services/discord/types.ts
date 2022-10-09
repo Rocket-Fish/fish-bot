@@ -82,3 +82,33 @@ export type ApplicationCommandResponse = ApplicationCommand & {
 };
 
 export type ApplicationCommandWithMandatoryId = ApplicationCommand | { id: string };
+
+export type GuildMember = {
+    user: {
+        id: string;
+        username: string;
+        discriminator: string;
+        avatar?: string;
+        bot?: boolean;
+        system?: boolean;
+        mfa_enabled?: boolean;
+        banner?: string;
+        accent_color?: string;
+        locale?: string;
+        verified?: string;
+        email?: string;
+        flags?: string;
+        premium_type?: string;
+        public_flags?: string;
+    };
+    nick?: string;
+    avatar?: string;
+    roles: string[];
+    joined_at: string;
+    premium_since?: string;
+    deaf: boolean;
+    mute: boolean;
+    pending?: boolean;
+    permissions: string;
+    communication_disabled_until?: string;
+};

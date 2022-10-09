@@ -14,7 +14,7 @@ instance.interceptors.request.use((r) => {
 instance.interceptors.response.use(
     (r) => r,
     (err) => {
-        throw new HTTPError(err.request?.url || '<unavailable URL>', err.code, err.message, err.response?.data);
+        throw new HTTPError(err.request?.url || '<unavailable URL>', err.code, err.message, err.response?.code, err.response?.data);
     }
 );
 
@@ -22,10 +22,12 @@ export class HTTPError extends Error {
     url: string | undefined;
     code: string | undefined;
     data: any | undefined;
-    constructor(url: string, code: string, message: string, data?: any) {
+    status: number | undefined;
+    constructor(url: string, message: string, code: string, status: number, data?: any) {
         super();
         this.name = 'HTTPError';
         this.url = url;
+        this.status = status;
         this.code = code;
         this.message = message;
         this.data = data;

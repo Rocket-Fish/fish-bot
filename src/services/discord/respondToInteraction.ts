@@ -138,12 +138,13 @@ export function respondWithMessageInEmbed(
 export function respondWithInteractiveComponent(
     message: string,
     components: Component[],
+    ephemeral: boolean = true,
     allowedMentions: AllowedMention[] = []
 ): InteractionResponse {
     return {
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-            flags: InteractionResponseFlags.EPHEMERAL,
+            ...(ephemeral && { flags: InteractionResponseFlags.EPHEMERAL }),
             components,
             content: message,
             allowed_mentions: {
