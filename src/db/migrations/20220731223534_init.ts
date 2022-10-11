@@ -14,6 +14,8 @@ export async function up(knex: Knex): Promise<void> {
         })
         .createTable(roleGroupTableName, (table) => {
             table.uuid('id').primary().unique().defaultTo(knex.raw('gen_random_uuid()'));
+            table.uuid('guild_id').index().references('id').inTable(guildTableName).notNullable();
+            table.string('name');
             table.timestamps(true, true);
         })
         .createTable(roleTableName, (table) => {

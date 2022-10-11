@@ -37,7 +37,7 @@ export type ButtonComponent = ButtonComponentFragment & {
     type: ComponentType.button;
 };
 
-export type SelectOptions = {
+export type SelectOption = {
     label: string;
     value: string;
     description?: string;
@@ -47,7 +47,7 @@ export type SelectOptions = {
 
 export type MenuComponentFragment = {
     custom_id: string;
-    options: SelectOptions[]; // 25 max
+    options: SelectOption[]; // 25 max
     placeholder?: string;
     min_values?: number; // min number chosen; default 1, min 0, max 25
     max_values?: number; // maximum number of items that can be chosen; default 1, max 25

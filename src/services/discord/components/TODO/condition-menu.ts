@@ -1,4 +1,4 @@
-import { MenuComponent, createMenuComponent } from '.';
+import { MenuComponent, createMenuComponent } from '..';
 
 export function makeConditionMenu(): MenuComponent {
     return createMenuComponent({

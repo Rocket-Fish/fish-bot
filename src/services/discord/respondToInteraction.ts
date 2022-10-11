@@ -162,3 +162,9 @@ export function respondWithInteractionUpdate(content: string): InteractionRespon
         },
     };
 }
+
+export function respondWithAcknowledgement(): InteractionResponse {
+    return {
+        type: InteractionResponseType.DEFERRED_UPDATE_MESSAGE,
+    };
+}

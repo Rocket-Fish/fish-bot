@@ -1,9 +1,9 @@
 import { InteractionResponseType } from 'discord-interactions';
 import { Request, Response } from 'express';
-import { MenuComponent, createMenuComponent, SelectOptions } from '.';
+import { MenuComponent, createMenuComponent, SelectOption } from '.';
 import { deleteRole } from '../../../models/Role';
 
-export function makeDeleteRoleConfigMenu(options: SelectOptions[]): MenuComponent {
+export function makeDeleteRoleConfigMenu(options: SelectOption[]): MenuComponent {
     return createMenuComponent({
         custom_id: 'select_role_to_be_deleted',
         placeholder: 'Select role configuration to be deleted',

@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { request } from 'http';
 import { Guild } from '../../../models/Guild';
 import { createRole, deleteAllRolesFromGuild, getRoles, Role, Rule, RuleType } from '../../../models/Role';
-import { createActionRowComponent, SelectOptions } from '../components';
+import { convertRoleConfigToSentance, convertRoleListToSelectOptions } from '../../../utils/convert';
+import { createActionRowComponent, SelectOption } from '../components';
 import { makeDeleteRoleConfigMenu } from '../components/delete-role-config-menu';
 import { getGuildRoles } from '../guilds';
 import { respondWithInteractiveComponent, respondWithMessageInEmbed, Status } from '../respondToInteraction';
@@ -11,7 +11,7 @@ import { discordRoleSelector } from './options/discord-role-selector';
 import { roleConditionTypeSelector } from './options/role-condition-type-selector';
 import { ActionNotImplemented } from './types';
 
-enum RoleOptions {
+export enum RoleOptions {
     create = 'create',
     list = 'list',
     delete = 'delete',
@@ -100,7 +100,7 @@ export async function handleRoleCommand(req: Request, res: Response) {
         case RoleOptions.delete:
             return onDelete(req, res);
         case RoleOptions.deleteAll:
-            return onDeleteAl(req, res);
+            return onDeleteAll(req, res);
         default:
             throw new ActionNotImplemented();
     }
@@ -141,20 +141,6 @@ async function onCreate(req: Request, res: Response) {
     }
 }
 
-function convertRoleConfigToSentance(role: Role) {
-    const { rule } = role;
-    switch (rule.type) {
-        case RuleType.everyone:
-            return `Role will be given to everyone`;
-        case RuleType.noone:
-            return `Role should be remove-only`;
-        case RuleType.fflogs:
-        // TODO: `Give role to users whos ...`
-        default:
-            return 'Error converting role config to description';
-    }
-}
-
 async function onList(req: Request, res: Response) {
     const guild: Guild = res.locals.guild;
     const roleList = await getRoles(guild.id);
@@ -162,8 +148,8 @@ async function onList(req: Request, res: Response) {
     if (roleList.length === 0) {
         return res.send(respondWithMessageInEmbed('Zero Role Configurations Found', 'You have not set up any role configurations', Status.warning));
     } else {
-        const StringifiedRoleList = roleList.map((r) => `<@&${r.discord_role_id}>: ${convertRoleConfigToSentance(r)}`).join('\n');
-        return res.send(respondWithMessageInEmbed(`Found ${roleList.length} Role Configurations`, StringifiedRoleList));
+        const stringifiedRoleList = roleList.map((r) => `<@&${r.discord_role_id}>: ${convertRoleConfigToSentance(r)}`).join('\n');
+        return res.send(respondWithMessageInEmbed(`Found ${roleList.length} Role Configurations`, stringifiedRoleList));
     }
 }
 
@@ -175,17 +161,12 @@ async function onDelete(req: Request, res: Response) {
         return res.send(respondWithMessageInEmbed('Nothing to delete', 'You have not set up any role configurations', Status.warning));
     } else {
         const guildRoleList = await getGuildRoles(guild.discord_guild_id);
-
-        const menuOptionsList: SelectOptions[] = roleList.map((r) => ({
-            label: `@${guildRoleList.find((rr: any) => rr.id === r.discord_role_id)?.name || r.discord_role_id}`,
-            value: r.id,
-            description: convertRoleConfigToSentance(r),
-        }));
-        return res.send(respondWithInteractiveComponent('', [createActionRowComponent([makeDeleteRoleConfigMenu(menuOptionsList)])]));
+        const roleConfigMenuOptions: SelectOption[] = convertRoleListToSelectOptions(roleList, guildRoleList);
+        return res.send(respondWithInteractiveComponent('', [createActionRowComponent([makeDeleteRoleConfigMenu(roleConfigMenuOptions)])]));
     }
 }
 
-async function onDeleteAl(req: Request, res: Response) {
+async function onDeleteAll(req: Request, res: Response) {
     const guild: Guild = res.locals.guild;
 
     await deleteAllRolesFromGuild(guild.id);

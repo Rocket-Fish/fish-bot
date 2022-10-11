@@ -24,28 +24,34 @@ Discord does not allow passing string to the backend within the Menus, so raw st
     - role for rule to be deleted
 
 
+[done]
 /role-group create `name:string`
 
-/role-group view-all
+[done]
+/role-group list
 
 /role-group view
     Menu:
     - select group to be viewed in detail 
 
+[done]
 /role-group delete
     Menu:
     - select group to be deteted (should disconect rules from group in the process)
 
-/role-group add-rule
+[done]
+/role-group delete-all
+
+/role-group add-role
     Menu:
-    - select rule to be added to a group (filter roles without group)
-    - group to add rule to
+    - select role to be added to a group (filter roles without group)
+    - group to add role to
 
-/role-group remove-rule
+/role-group remove-role
     Menu: 
-    - select rule to be removed from a group (filter roles within a group)
+    - select role to be removed from a group (filter roles within a group)
 
-/role-group order-rules
+/role-group order-roles
     Menu:
     - Order 1
     - Order 2
