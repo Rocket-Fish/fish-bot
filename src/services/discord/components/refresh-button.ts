@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { ButtonComponent, ComponentButtonStyles, createButtonComponent } from '.';
 import { Guild } from '../../../models/Guild';
 import redisClient from '../../redis-client';
-import { makeRedisKey, RoleUpdateStatus } from '../commands/for-each-member-in-server';
+import { forEachMemberKey, RoleUpdateStatus } from '../commands/for-each-member-in-server';
 
 export function makeRefreshButton(): ButtonComponent {
     return createButtonComponent({
@@ -16,7 +16,7 @@ export function makeRefreshButton(): ButtonComponent {
 export async function handleRefreshStatus(req: Request, res: Response) {
     const guild: Guild = res.locals.guild;
 
-    const json = await redisClient.get(makeRedisKey(guild.id));
+    const json = await redisClient.get(forEachMemberKey(guild.id));
 
     if (json) {
         const status: RoleUpdateStatus = JSON.parse(json);

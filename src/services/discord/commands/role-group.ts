@@ -4,7 +4,13 @@ import { getRoles } from '../../../models/Role';
 import { createRoleGroup, deleteAllRoleGroupsForGuild, getRoleGroups } from '../../../models/RoleGroup';
 import { convertRoleGroupListToSelectOptions, convertRoleListToSelectOptions } from '../../../utils/convert';
 import { SelectOption, createActionRowComponent } from '../components';
-import { makeAddRoleToGroupMenu1, makeAddRoleToGroupMenu2 } from '../components/add-role-to-group-menu';
+import {
+    AddRole2GroupMenuIds,
+    AddRole2GroupMenuIdsToData,
+    cacheUserSelection,
+    makeAddRoleToGroupMenu1,
+    makeAddRoleToGroupMenu2,
+} from '../components/add-role-to-group-menu';
 import { makeDeleteRoleGroupMenu } from '../components/delete-role-group-menu';
 import { getGuildRoles } from '../guilds';
 import { respondWithInteractiveComponent, respondWithMessageInEmbed, Status } from '../respondToInteraction';
@@ -24,7 +30,7 @@ export enum RoleGroupOptions {
 }
 
 export const roleGroup: ApplicationCommand = {
-    name: 'role-group',
+    name: 'group',
     description: 'Manage role groups; only one role per role group will be given to a member',
     type: ApplicationCommandTypes.CHAT_INPUT,
     options: [
@@ -125,7 +131,17 @@ async function onDeleteAll(req: Request, res: Response) {
     return res.send(respondWithMessageInEmbed(`Success`, 'All role groups has been deleted'));
 }
 
+async function initializeAddRole(interactionId: string) {
+    const value: AddRole2GroupMenuIdsToData = {
+        [AddRole2GroupMenuIds.roleMenu]: '',
+        [AddRole2GroupMenuIds.groupMenu]: '',
+    };
+    cacheUserSelection(interactionId, value);
+}
+
 async function onAddRole(req: Request, res: Response) {
+    const { body } = req;
+
     const guild: Guild = res.locals.guild;
     const roleGroupList = await getRoleGroups(guild.id);
     const roleList = await getRoles(guild.id);
@@ -150,6 +166,7 @@ async function onAddRole(req: Request, res: Response) {
         const guildRoleList = await getGuildRoles(guild.discord_guild_id);
         const roleConfigMenuOptions: SelectOption[] = convertRoleListToSelectOptions(roleList, guildRoleList);
         const roleGroupMenuOptions = convertRoleGroupListToSelectOptions(roleGroupList);
+        await initializeAddRole(body.id);
         return res.send(
             respondWithInteractiveComponent('Select a role and select a role group to add the role to', [
                 createActionRowComponent([makeAddRoleToGroupMenu1(roleConfigMenuOptions)]),

@@ -46,7 +46,7 @@ export async function handleForEachMember(req: Request, res: Response) {
  */
 async function ensureOneInstance(req: Request, res: Response) {
     const guild: Guild = res.locals.guild;
-    const json = await redisClient.get(makeRedisKey(guild.id));
+    const json = await redisClient.get(forEachMemberKey(guild.id));
     if (json) {
         const status: RoleUpdateStatus = JSON.parse(json);
         if (!status.isComplete) {
@@ -55,12 +55,12 @@ async function ensureOneInstance(req: Request, res: Response) {
     }
 }
 
-export function makeRedisKey(guildId: string) {
+export function forEachMemberKey(guildId: string) {
     return `4EachMemberIn-${guildId}`;
 }
 
 export async function updateCache(guildId: string, value: any) {
-    return await redisClient.setEx(makeRedisKey(guildId), 60 * 60, JSON.stringify(value));
+    return await redisClient.setEx(forEachMemberKey(guildId), 60 * 60, JSON.stringify(value));
 }
 
 async function onUpdateRoles(req: Request, res: Response) {
