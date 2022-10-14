@@ -68,7 +68,7 @@ async function onUpdateRoles(req: Request, res: Response) {
     const roleList = await getRoles(guild.id);
 
     if (roleList.length === 0) {
-        return res.send(respondWithMessageInEmbed('Zero Role Configurations Found', 'You have not set up any role configurations', Status.warning));
+        return res.send(respondWithMessageInEmbed('No Role Configurations Found', 'You have not set up any role configurations', Status.warning));
     } else {
         let members: GuildMember[] = [];
         let lastMember: GuildMember | undefined = undefined;

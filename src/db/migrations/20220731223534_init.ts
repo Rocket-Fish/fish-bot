@@ -2,8 +2,8 @@ import { Knex } from 'knex';
 
 const guildTableName = 'guilds';
 const roleTableName = 'roles';
-const roleGroupTableName = 'role_groups';
-const roleGroupOrderTableName = 'role_groups_order';
+const groupTableName = 'groups';
+const roleGroupWithPriorityTableName = 'role_group_with_priority';
 
 export async function up(knex: Knex): Promise<void> {
     return knex.schema
@@ -12,7 +12,7 @@ export async function up(knex: Knex): Promise<void> {
             table.string('discord_guild_id').notNullable().unique();
             table.timestamps(true, true);
         })
-        .createTable(roleGroupTableName, (table) => {
+        .createTable(groupTableName, (table) => {
             table.uuid('id').primary().unique().defaultTo(knex.raw('gen_random_uuid()'));
             table.uuid('guild_id').index().references('id').inTable(guildTableName).notNullable();
             table.string('name');
@@ -25,9 +25,9 @@ export async function up(knex: Knex): Promise<void> {
             table.json('rule').notNullable();
             table.timestamps(true, true);
         })
-        .createTable(roleGroupOrderTableName, (table) => {
+        .createTable(roleGroupWithPriorityTableName, (table) => {
             table.uuid('id').primary().unique().defaultTo(knex.raw('gen_random_uuid()'));
-            table.uuid('role_group_id').index().references('id').inTable(roleGroupTableName).notNullable();
+            table.uuid('group_id').index().references('id').inTable(groupTableName).notNullable();
             table.uuid('role_id').index().references('id').inTable(roleTableName).nullable();
             table.integer('priority').notNullable();
             table.timestamps(true, true);
@@ -36,5 +36,5 @@ export async function up(knex: Knex): Promise<void> {
 
 export async function down(knex: Knex): Promise<void> {
     // reverse order of above to prevent error
-    return knex.schema.dropTable(roleGroupOrderTableName).dropTable(roleTableName).dropTable(roleGroupTableName).dropTable(guildTableName);
+    return knex.schema.dropTable(roleGroupWithPriorityTableName).dropTable(roleTableName).dropTable(groupTableName).dropTable(guildTableName);
 }

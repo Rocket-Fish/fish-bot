@@ -1,4 +1,5 @@
 import db from '../db';
+import { roleGroupWithPrioirty, RoleGroupWithPriority } from './RoleGroupWithPriority';
 
 /**
  * Rule Object to be converted into a JSON string
@@ -49,11 +50,11 @@ export type Rule =
           type: Exclude<RuleType, RuleType.fflogs>;
       };
 
-const tableName = 'roles';
+export const roles = 'roles';
 
 export function createRole(forGuild: string, discordRoleId: string, rule: Rule): Promise<void> {
     return new Promise((resolve, reject) => {
-        db.from<RoleStringified>(tableName)
+        db.from<RoleStringified>(roles)
             .insert({ guild_id: forGuild, discord_role_id: discordRoleId, rule: JSON.stringify(rule) })
             .then(() => resolve())
             .catch((e) => reject(e));
@@ -62,8 +63,18 @@ export function createRole(forGuild: string, discordRoleId: string, rule: Rule):
 
 export function getRoles(forGuild: string): Promise<Role[]> {
     return new Promise((resolve, reject) => {
-        db.from<Role>(tableName)
+        db.from<Role>(roles)
             .where('guild_id', forGuild)
+            .then((roles) => resolve(roles))
+            .catch((e) => reject(e));
+    });
+}
+
+export function getGrouplessRoles(forGuild: string): Promise<Role[]> {
+    return new Promise((resolve, reject) => {
+        db.from<Role>(roles)
+            .where('guild_id', forGuild)
+            .whereNotExists(db.from<RoleGroupWithPriority>(roleGroupWithPrioirty).whereRaw(`${roleGroupWithPrioirty}.role_id = ${roles}.id`))
             .then((roles) => resolve(roles))
             .catch((e) => reject(e));
     });
@@ -71,7 +82,7 @@ export function getRoles(forGuild: string): Promise<Role[]> {
 
 export function deleteRole(id: string): Promise<void> {
     return new Promise((resolve, reject) => {
-        db.from(tableName)
+        db.from(roles)
             .where('id', id)
             .del()
             .then(() => resolve())
@@ -81,7 +92,7 @@ export function deleteRole(id: string): Promise<void> {
 
 export function deleteAllRolesFromGuild(guildId: string): Promise<void> {
     return new Promise((resolve, reject) => {
-        db.from(tableName)
+        db.from(roles)
             .where('guild_id', guildId)
             .del()
             .then(() => resolve())

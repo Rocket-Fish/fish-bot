@@ -1,5 +1,5 @@
 import { Role, RuleType } from '../models/Role';
-import { RoleGroup } from '../models/RoleGroup';
+import { Group } from '../models/Group';
 import { SelectOption } from '../services/discord/components';
 
 export function convertRoleConfigToSentance(role: Role) {
@@ -26,10 +26,10 @@ export function convertRoleListToSelectOptions(roleList: Role[], guildRoleList: 
     return menuOptionsList;
 }
 
-export function convertRoleGroupListToSelectOptions(roleGroupList: RoleGroup[]): SelectOption[] {
-    const roleGroupOptions: SelectOption[] = roleGroupList.map((rg) => ({
+export function convertGroupListToSelectOptions(groupList: Group[]): SelectOption[] {
+    const groupOptions: SelectOption[] = groupList.map((rg) => ({
         label: rg.name,
         value: rg.id,
     }));
-    return roleGroupOptions;
+    return groupOptions;
 }

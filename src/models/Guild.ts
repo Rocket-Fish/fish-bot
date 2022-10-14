@@ -22,11 +22,11 @@ export type Guild = {
     updated_at: number;
 };
 
-const tableName = 'guilds';
+export const guilds = 'guilds';
 
 export function getGuildByDiscordId(discordGuildId: string): Promise<Guild | undefined> {
     return new Promise((resolve, reject) => {
-        db.from<Guild>(tableName)
+        db.from<Guild>(guilds)
             .where('discord_guild_id', discordGuildId)
             .first()
             .then((guild) => resolve(guild))
@@ -36,7 +36,7 @@ export function getGuildByDiscordId(discordGuildId: string): Promise<Guild | und
 
 export function createGuild(discordGuildId: string): Promise<void> {
     return new Promise((resolve, reject) => {
-        db.from<Guild>(tableName)
+        db.from<Guild>(guilds)
             .insert({ discord_guild_id: discordGuildId })
             .then(() => resolve())
             .catch((e) => reject(e));

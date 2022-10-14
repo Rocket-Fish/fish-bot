@@ -1,6 +1,6 @@
 import { ApplicationCommandOption, ApplicationCommandOptionTypes } from '../../types';
 
-export const roleGroupNameInput: ApplicationCommandOption = {
+export const groupNameInput: ApplicationCommandOption = {
     name: 'name',
     description: 'What sort of condition should be rquired to give out this role',
     required: true,

@@ -1,6 +1,7 @@
 import { InteractionResponseType } from 'discord-interactions';
 import { Request, Response } from 'express';
 import { SelectOption, MenuComponent, createMenuComponent } from '.';
+import { createRoleGroupWithPriority } from '../../../models/RoleGroupWithPriority';
 import redisClient from '../../redis-client';
 import { respondWithAcknowledgement } from '../respondToInteraction';
 
@@ -65,12 +66,22 @@ export async function handleAddRoleToGroup(req: Request, res: Response) {
 
     const userSelection = {
         ...cachedObject,
-        [key]: data.value,
+        [key]: data.values[0],
     };
 
     await cacheUserSelection(interactionId, userSelection);
 
+    console.log('user selection', userSelection);
     if (isSelectionComplete(userSelection)) {
+        await createRoleGroupWithPriority(userSelection['add-role-to-group_select-role'], userSelection['add-role-to-group_select-group']);
+
+        return res.send({
+            type: InteractionResponseType.UPDATE_MESSAGE,
+            data: {
+                content: 'Role configuration added to selected group',
+                components: [],
+            },
+        });
     } else {
         return res.send(respondWithAcknowledgement());
     }

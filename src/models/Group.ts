@@ -1,6 +1,6 @@
 import db from '../db';
 
-export type RoleGroup = {
+export type Group = {
     id: string;
     guild_id: string;
     name: string;
@@ -8,29 +8,29 @@ export type RoleGroup = {
     updated_at: number;
 };
 
-const tableName = 'role_groups';
+export const groups = 'groups';
 
-export function createRoleGroup(guild_id: string, name: string): Promise<void> {
+export function createGroup(guild_id: string, name: string): Promise<void> {
     return new Promise((resolve, reject) => {
-        db.from<RoleGroup>(tableName)
+        db.from<Group>(groups)
             .insert({ name, guild_id })
             .then(() => resolve())
             .catch((e) => reject(e));
     });
 }
 
-export function getRoleGroups(guild_id: string): Promise<RoleGroup[]> {
+export function getGroups(guild_id: string): Promise<Group[]> {
     return new Promise((resolve, reject) => {
-        db.from<RoleGroup>(tableName)
+        db.from<Group>(groups)
             .where('guild_id', guild_id)
             .then((groups) => resolve(groups))
             .catch((e) => reject(e));
     });
 }
 
-export function deleteRoleGroup(id: string): Promise<void> {
+export function deleteGroup(id: string): Promise<void> {
     return new Promise((resolve, reject) => {
-        db.from<RoleGroup>(tableName)
+        db.from<Group>(groups)
             .where('id', id)
             .del()
             .then(() => resolve())
@@ -38,9 +38,9 @@ export function deleteRoleGroup(id: string): Promise<void> {
     });
 }
 
-export function deleteAllRoleGroupsForGuild(guild_id: string): Promise<void> {
+export function deleteAllGroupsForGuild(guild_id: string): Promise<void> {
     return new Promise((resolve, reject) => {
-        db.from<RoleGroup>(tableName)
+        db.from<Group>(groups)
             .where('guild_id', guild_id)
             .del()
             .then(() => resolve())
