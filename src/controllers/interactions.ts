@@ -13,6 +13,7 @@ import { handleRefreshStatus, makeRefreshButton } from '../services/discord/comp
 import { respondWithMessageInEmbed, Status } from '../services/discord/respondToInteraction';
 import { HTTPError } from '../services/http';
 import { makeRemoveRoleFromGroupMenu, handleRemoveRoleFromGroupMenu } from '../services/discord/components/remove-role-from-group-menu';
+import { makeZoneMenu, makeOperandMenu, makeConditionMenu, handleCreateFFlogsRole } from '../services/discord/components/create-fflogs-role';
 
 export async function handleInteractions(req: Request, res: Response) {
     try {
@@ -68,6 +69,11 @@ export async function handleInteractions(req: Request, res: Response) {
                     return await handleAddRoleToGroup(req, res);
                 case makeRemoveRoleFromGroupMenu([]).custom_id:
                     return await handleRemoveRoleFromGroupMenu(req, res);
+                case makeZoneMenu().custom_id:
+                case makeOperandMenu().custom_id:
+                case makeConditionMenu().custom_id:
+                    [req, res] = await populateGuild(req, res);
+                    return await handleCreateFFlogsRole(req, res);
                 default:
                     return res.send({
                         type: InteractionResponseType.UPDATE_MESSAGE,

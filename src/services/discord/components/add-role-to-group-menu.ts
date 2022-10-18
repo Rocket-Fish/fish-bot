@@ -5,6 +5,22 @@ import { createRoleGroupWithPriority } from '../../../models/RoleGroupWithPriori
 import redisClient from '../../redis-client';
 import { respondWithAcknowledgement } from '../respondToInteraction';
 
+export function makeAddRoleToGroupMenu1(options: SelectOption[]): MenuComponent {
+    return createMenuComponent({
+        custom_id: AddRole2GroupMenuIds.roleMenu,
+        placeholder: 'Select role configuration to be added to a role group',
+        options,
+    });
+}
+
+export function makeAddRoleToGroupMenu2(options: SelectOption[]): MenuComponent {
+    return createMenuComponent({
+        custom_id: AddRole2GroupMenuIds.groupMenu,
+        placeholder: 'Select role group to receive the above role configuration',
+        options,
+    });
+}
+
 export enum AddRole2GroupMenuIds {
     roleMenu = 'add-role-to-group_select-role',
     groupMenu = 'add-role-to-group_select-group',
@@ -22,24 +38,8 @@ export async function cacheUserSelection(interactionId: string, value: AddRole2G
     return await redisClient.setEx(addRole2GroupKey(interactionId), 60 * 30, JSON.stringify(value));
 }
 
-export async function getCachedSelection(interactionId: string) {
+async function getCachedSelection(interactionId: string) {
     return await redisClient.get(addRole2GroupKey(interactionId));
-}
-
-export function makeAddRoleToGroupMenu1(options: SelectOption[]): MenuComponent {
-    return createMenuComponent({
-        custom_id: AddRole2GroupMenuIds.roleMenu,
-        placeholder: 'Select role configuration to be added to a role group',
-        options,
-    });
-}
-
-export function makeAddRoleToGroupMenu2(options: SelectOption[]): MenuComponent {
-    return createMenuComponent({
-        custom_id: AddRole2GroupMenuIds.groupMenu,
-        placeholder: 'Select role group to receive the above role configuration',
-        options,
-    });
 }
 
 function isSelectionComplete(value: AddRole2GroupMenuIdsToData) {
@@ -51,6 +51,7 @@ export async function handleAddRoleToGroup(req: Request, res: Response) {
     const { data } = body;
     const interactionId: string = body.message.interaction.id;
 
+    // TODO: refactor this function has similar contents to handleCreateFFlogsRole()
     const cachedValue: string | null = await getCachedSelection(interactionId);
     if (!cachedValue) {
         return res.send({
@@ -71,7 +72,6 @@ export async function handleAddRoleToGroup(req: Request, res: Response) {
 
     await cacheUserSelection(interactionId, userSelection);
 
-    console.log('user selection', userSelection);
     if (isSelectionComplete(userSelection)) {
         await createRoleGroupWithPriority(userSelection['add-role-to-group_select-role'], userSelection['add-role-to-group_select-group']);
 

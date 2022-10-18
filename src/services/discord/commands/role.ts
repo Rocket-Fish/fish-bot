@@ -3,6 +3,15 @@ import { Guild } from '../../../models/Guild';
 import { createRole, deleteAllRolesFromGuild, getRoles, Role, Rule, RuleType } from '../../../models/Role';
 import { convertRoleConfigToSentance, convertRoleListToSelectOptions } from '../../../utils/convert';
 import { createActionRowComponent, SelectOption } from '../components';
+import {
+    makeZoneMenu,
+    makeOperandMenu,
+    makeConditionMenu,
+    cacheCreateFflogsRoleSelection,
+    createFflogsRoleKey,
+    CreateFFlogsRoleMenuIds,
+    CreateFflogsRoleData,
+} from '../components/create-fflogs-role';
 import { makeDeleteRoleConfigMenu } from '../components/delete-role-config-menu';
 import { getGuildRoles } from '../guilds';
 import { respondWithInteractiveComponent, respondWithMessageInEmbed, Status } from '../respondToInteraction';
@@ -107,7 +116,9 @@ export async function handleRoleCommand(req: Request, res: Response) {
 }
 
 async function onCreate(req: Request, res: Response) {
-    const { data } = req.body;
+    const { body } = req;
+    const { data } = body;
+    const interactionId: string = body.message.interaction.id;
     const guild: Guild = res.locals.guild;
 
     const roleOption = data.options[0];
@@ -135,10 +146,27 @@ async function onCreate(req: Request, res: Response) {
             );
         }
         case RuleType.fflogs:
-        // TODO
+            await initializeCreateFFlogsRole(interactionId, discordRole);
+            return res.send(
+                respondWithInteractiveComponent('Select fflogs zone, operand and condition', [
+                    createActionRowComponent([makeZoneMenu()]),
+                    createActionRowComponent([makeOperandMenu()]),
+                    createActionRowComponent([makeConditionMenu()]),
+                ])
+            );
         default:
             throw new ActionNotImplemented();
     }
+}
+
+async function initializeCreateFFlogsRole(interactionId: string, roleId: string) {
+    const value: CreateFflogsRoleData = {
+        [CreateFFlogsRoleMenuIds.roleId]: roleId,
+        [CreateFFlogsRoleMenuIds.selectCondition]: '',
+        [CreateFFlogsRoleMenuIds.selectOperand]: '',
+        [CreateFFlogsRoleMenuIds.selectZone]: '',
+    };
+    return await cacheCreateFflogsRoleSelection(interactionId, value);
 }
 
 async function onList(req: Request, res: Response) {
