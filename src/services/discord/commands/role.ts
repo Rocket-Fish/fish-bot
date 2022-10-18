@@ -9,7 +9,7 @@ import {
     makeConditionMenu,
     cacheCreateFflogsRoleSelection,
     createFflogsRoleKey,
-    CreateFFlogsRoleMenuIds,
+    CreateFFlogsRoleIds,
     CreateFflogsRoleData,
 } from '../components/create-fflogs-role';
 import { makeDeleteRoleConfigMenu } from '../components/delete-role-config-menu';
@@ -118,7 +118,7 @@ export async function handleRoleCommand(req: Request, res: Response) {
 async function onCreate(req: Request, res: Response) {
     const { body } = req;
     const { data } = body;
-    const interactionId: string = body.message.interaction.id;
+    const interactionId: string = body.id;
     const guild: Guild = res.locals.guild;
 
     const roleOption = data.options[0];
@@ -161,10 +161,10 @@ async function onCreate(req: Request, res: Response) {
 
 async function initializeCreateFFlogsRole(interactionId: string, roleId: string) {
     const value: CreateFflogsRoleData = {
-        [CreateFFlogsRoleMenuIds.roleId]: roleId,
-        [CreateFFlogsRoleMenuIds.selectCondition]: '',
-        [CreateFFlogsRoleMenuIds.selectOperand]: '',
-        [CreateFFlogsRoleMenuIds.selectZone]: '',
+        [CreateFFlogsRoleIds.roleId]: roleId,
+        [CreateFFlogsRoleIds.selectCondition]: '',
+        [CreateFFlogsRoleIds.selectOperand]: '',
+        [CreateFFlogsRoleIds.selectZone]: '',
     };
     return await cacheCreateFflogsRoleSelection(interactionId, value);
 }

@@ -10,7 +10,9 @@ export function convertRoleConfigToSentance(role: Role) {
         case RuleType.noone:
             return `Role should be remove-only`;
         case RuleType.fflogs:
-        // TODO: `Give role to users whos ...`
+            if (rule.area.type === 'zone')
+                return `Role will be given to users who has ${rule.operand} ${rule.condition} in Zone ${rule.area.id} at Difficulty ${rule.area.difficulty}`;
+            else return "rule.area.type = 'encounters' is Unsupported";
         default:
             return 'Error converting role config to description';
     }

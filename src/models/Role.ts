@@ -26,10 +26,23 @@ type RoleStringified =
           rule: string;
       };
 
-export type FFlogsArea = {
-    type: 'zone' | 'encounter';
-    value: number;
+export enum FFlogsDifficulty {
+    savage = 101,
+    normal = 100,
+}
+
+export type FFlogsZone = {
+    type: 'zone';
+    id: number;
+    difficulty: FFlogsDifficulty;
 };
+
+export type FFlogsEncounter = {
+    type: 'encounter';
+    id: number;
+};
+
+export type FFlogsArea = FFlogsZone | FFlogsEncounter;
 
 export enum RuleType {
     noone = 'noone',
@@ -37,11 +50,21 @@ export enum RuleType {
     fflogs = 'fflogs',
 }
 
+export enum RuleOperand {
+    numberPinkParses = 'number_pink_parses',
+    numberOrangeParses = 'number_orange_parses',
+    numberPurpleParses = 'number_purple_parses',
+}
+
+export enum RuleCondition {
+    greaterThan4 = 'greater_than_4',
+}
+
 export type FFlogsRule = {
     type: RuleType.fflogs;
     area: FFlogsArea;
-    operand: string; // TODO
-    condition: string; //TODO
+    operand: RuleOperand;
+    condition: RuleCondition;
 };
 
 export type Rule =

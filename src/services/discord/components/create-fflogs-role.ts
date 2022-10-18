@@ -2,7 +2,7 @@ import { InteractionResponseType } from 'discord-interactions';
 import { Request, Response } from 'express';
 import { MenuComponent, createMenuComponent } from '.';
 import { Guild } from '../../../models/Guild';
-import { createRole, Rule, RuleType } from '../../../models/Role';
+import { createRole, FFlogsDifficulty, Rule, RuleCondition, RuleOperand, RuleType } from '../../../models/Role';
 import redisClient from '../../redis-client';
 import { respondWithAcknowledgement } from '../respondToInteraction';
 
@@ -15,13 +15,11 @@ export function makeZoneMenu(): MenuComponent {
         options: [
             {
                 label: 'Abyssos Savage',
-                value: '49-savage',
-                description: 'p5s-p8s',
+                value: `49,${FFlogsDifficulty.savage}`,
             },
             // {
             //     label: 'Asphodelos Savage',
-            //     value: '44-savage',
-            //     description: 'p1s - p4s',
+            //     value: '44-savage'
             // },
             // TODO: make this dynamically fetched from fflogs
         ],
@@ -35,17 +33,17 @@ export function makeOperandMenu(): MenuComponent {
         options: [
             {
                 label: 'Number of pink parses',
-                value: 'number_pink_count',
+                value: RuleOperand.numberPinkParses,
                 description: 'Number of pink encounters in zone',
             },
             {
                 label: 'Number of orange parses',
-                value: 'number_orange_count',
+                value: RuleOperand.numberOrangeParses,
                 description: 'Number of orange encounters in zone',
             },
             {
                 label: 'Number of purple parses',
-                value: 'number_purple_count',
+                value: RuleOperand.numberPurpleParses,
                 description: 'Number of purple encounters in zone',
             },
         ],
@@ -59,14 +57,14 @@ export function makeConditionMenu(): MenuComponent {
         options: [
             {
                 label: 'Greater than 4',
-                value: 'greater_than_4',
+                value: RuleCondition.greaterThan4,
                 description: 'Operand must be greater than four',
             },
         ],
     });
 }
-export enum CreateFFlogsRoleMenuIds {
-    roleId = 'rold_id',
+export enum CreateFFlogsRoleIds {
+    roleId = 'role_id',
     selectZone = 'select_zone',
     selectOperand = 'select_operand',
     selectCondition = 'select_condition',
@@ -77,7 +75,7 @@ export function createFflogsRoleKey(interactionId: string) {
 }
 
 export type CreateFflogsRoleData = {
-    [k in CreateFFlogsRoleMenuIds]: string;
+    [k in CreateFFlogsRoleIds]: string;
 };
 
 export async function cacheCreateFflogsRoleSelection(interactionId: string, value: CreateFflogsRoleData) {
@@ -89,9 +87,7 @@ async function getCachedFFlogsRoleSelection(interactionId: string) {
 }
 
 function isInformationGatheringComplete(value: CreateFflogsRoleData) {
-    return (
-        value[CreateFFlogsRoleMenuIds.selectCondition] && value[CreateFFlogsRoleMenuIds.selectOperand] && value[CreateFFlogsRoleMenuIds.selectZone]
-    );
+    return value[CreateFFlogsRoleIds.selectCondition] && value[CreateFFlogsRoleIds.selectOperand] && value[CreateFFlogsRoleIds.selectZone];
 }
 
 export async function handleCreateFFlogsRole(req: Request, res: Response) {
@@ -113,7 +109,7 @@ export async function handleCreateFFlogsRole(req: Request, res: Response) {
     }
 
     const cachedObject: CreateFflogsRoleData = JSON.parse(cachedValue);
-    const key: CreateFFlogsRoleMenuIds = data.custom_id;
+    const key: CreateFFlogsRoleIds = data.custom_id;
 
     const selection = {
         ...cachedObject,
@@ -123,13 +119,23 @@ export async function handleCreateFFlogsRole(req: Request, res: Response) {
     await cacheCreateFflogsRoleSelection(interactionId, selection);
 
     if (isInformationGatheringComplete(selection)) {
-        const rule: Rule = { type: RuleType.fflogs };
+        const splitZone = selection.select_zone.split(',');
+        const rule: Rule = {
+            type: RuleType.fflogs,
+            area: {
+                type: 'zone',
+                id: Number(splitZone[0]),
+                difficulty: Number(splitZone[1]),
+            },
+            operand: selection.select_operand as RuleOperand,
+            condition: selection.select_condition as RuleCondition,
+        };
 
-        await createRole(guild.id, selection.rold_id, rule);
+        await createRole(guild.id, selection.role_id, rule);
         return res.send({
             type: InteractionResponseType.UPDATE_MESSAGE,
             data: {
-                content: `Role Rule Created: Role <@&${selection.rold_id}> will be removed from anyone who has it`,
+                content: `Role <@&${selection.role_id}> will be given to users who has ${selection.select_operand} ${selection.select_condition} in Zone ${splitZone[0]} at Difficulty ${splitZone[1]}`,
                 components: [],
             },
         });
