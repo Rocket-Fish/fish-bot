@@ -6,7 +6,7 @@ import { test } from './test';
 import { respondWithMessageInEmbed, Status } from '../respondToInteraction';
 import { role } from './role';
 import { forEachMember } from './for-each-member-in-server';
-import { group } from './role-group';
+import { group } from './group';
 
 export const init: ApplicationCommand = {
     name: 'initialize',

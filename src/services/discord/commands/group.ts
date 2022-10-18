@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { Guild } from '../../../models/Guild';
-import { getGrouplessRoles, getRoles } from '../../../models/Role';
+import { getGroupedRoles, getGrouplessRoles, getRoles } from '../../../models/Role';
 import { createGroup, deleteAllGroupsForGuild, getGroups } from '../../../models/Group';
 import { convertGroupListToSelectOptions, convertRoleListToSelectOptions } from '../../../utils/convert';
 import { SelectOption, createActionRowComponent } from '../components';
@@ -18,6 +18,7 @@ import { ApplicationCommand, ApplicationCommandOptionTypes, ApplicationCommandTy
 import { groupNameInput } from './options/role-group-name-input';
 import { role, RoleOptions } from './role';
 import { ActionNotImplemented } from './types';
+import { makeRemoveRoleFromGroupMenu } from '../components/remove-role-from-group-menu';
 
 export enum GroupOptions {
     create = 'create',
@@ -26,7 +27,7 @@ export enum GroupOptions {
     deleteAll = 'delete-all',
     addRole = 'add-role',
     removeRole = 'remove-role',
-    orderRoles = 'order-roles',
+    orderRoles = 'order-roles', // TODO
 }
 
 export const group: ApplicationCommand = {
@@ -60,6 +61,11 @@ export const group: ApplicationCommand = {
             description: 'Add a role to this a role group',
             type: ApplicationCommandOptionTypes.SUB_COMMAND,
         },
+        {
+            name: GroupOptions.removeRole,
+            description: 'remove a role from its role group',
+            type: ApplicationCommandOptionTypes.SUB_COMMAND,
+        },
     ],
 };
 
@@ -78,6 +84,8 @@ export async function handleGroupCommand(req: Request, res: Response) {
             return onDeleteAll(req, res);
         case GroupOptions.addRole:
             return onAddRole(req, res);
+        case GroupOptions.removeRole:
+            return onRemoveRole(req, res);
         default:
             throw new ActionNotImplemented();
     }
@@ -174,4 +182,27 @@ async function onAddRole(req: Request, res: Response) {
             ])
         );
     }
+}
+
+async function onRemoveRole(req: Request, res: Response) {
+    const { body } = req;
+    const guild: Guild = res.locals.guild;
+
+    const roleList = await getGroupedRoles(guild.id);
+    if (roleList.length === 0) {
+        return res.send(
+            respondWithMessageInEmbed(
+                'No Available Role Configuration',
+                `You have either added all available role configurations to groups or have not set up any role configurations.\n Use "/${role.name} ${RoleOptions.create}" to create a new role configuration`,
+                Status.warning
+            )
+        );
+    }
+    const guildRoleList = await getGuildRoles(guild.discord_guild_id);
+    const roleMenuList: SelectOption[] = convertRoleListToSelectOptions(roleList, guildRoleList);
+    return res.send(
+        respondWithInteractiveComponent('Select a role to be removed from a role group', [
+            createActionRowComponent([makeRemoveRoleFromGroupMenu(roleMenuList)]),
+        ])
+    );
 }

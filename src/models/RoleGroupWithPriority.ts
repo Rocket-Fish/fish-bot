@@ -9,7 +9,7 @@ export type RoleGroupWithPriority = {
     updated_at: number;
 };
 
-export const roleGroupWithPrioirty = 'role_group_with_priority';
+export const roleGroupWithPriority = 'role_group_with_priority';
 
 function makeDefaultPriority(): number {
     // Jan 1st 2022, 1:00:00 AM GMT
@@ -19,9 +19,9 @@ function makeDefaultPriority(): number {
 
 export function createRoleGroupWithPriority(role_id: string, group_id: string, priority: number = makeDefaultPriority()): Promise<void> {
     return new Promise((resolve, reject) => {
-        db.from<RoleGroupWithPriority>(roleGroupWithPrioirty)
+        db.from<RoleGroupWithPriority>(roleGroupWithPriority)
             .insert({ role_id, group_id, priority })
-            .whereNotExists(db.from<RoleGroupWithPriority>(roleGroupWithPrioirty).where('role_id', role_id))
+            .whereNotExists(db.from<RoleGroupWithPriority>(roleGroupWithPriority).where('role_id', role_id))
             .then(() => resolve())
             .catch((e) => reject(e));
     });

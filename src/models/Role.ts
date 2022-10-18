@@ -1,5 +1,5 @@
 import db from '../db';
-import { roleGroupWithPrioirty, RoleGroupWithPriority } from './RoleGroupWithPriority';
+import { roleGroupWithPriority, RoleGroupWithPriority } from './RoleGroupWithPriority';
 
 /**
  * Rule Object to be converted into a JSON string
@@ -70,11 +70,23 @@ export function getRoles(forGuild: string): Promise<Role[]> {
     });
 }
 
+const dbQueryInPivotTableByRole = db.from<RoleGroupWithPriority>(roleGroupWithPriority).whereRaw(`${roleGroupWithPriority}.role_id = ${roles}.id`);
+
 export function getGrouplessRoles(forGuild: string): Promise<Role[]> {
     return new Promise((resolve, reject) => {
         db.from<Role>(roles)
             .where('guild_id', forGuild)
-            .whereNotExists(db.from<RoleGroupWithPriority>(roleGroupWithPrioirty).whereRaw(`${roleGroupWithPrioirty}.role_id = ${roles}.id`))
+            .whereNotExists(dbQueryInPivotTableByRole)
+            .then((roles) => resolve(roles))
+            .catch((e) => reject(e));
+    });
+}
+
+export function getGroupedRoles(forGuild: string): Promise<Role[]> {
+    return new Promise((resolve, reject) => {
+        db.from<Role>(roles)
+            .where('guild_id', forGuild)
+            .whereExists(dbQueryInPivotTableByRole)
             .then((roles) => resolve(roles))
             .catch((e) => reject(e));
     });
@@ -94,6 +106,16 @@ export function deleteAllRolesFromGuild(guildId: string): Promise<void> {
     return new Promise((resolve, reject) => {
         db.from(roles)
             .where('guild_id', guildId)
+            .del()
+            .then(() => resolve())
+            .catch((e) => reject(e));
+    });
+}
+
+export function removeRoleFromAllGroups(roleId: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        db.from(roleGroupWithPriority)
+            .where('role_id', roleId)
             .del()
             .then(() => resolve())
             .catch((e) => reject(e));
