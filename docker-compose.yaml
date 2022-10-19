@@ -11,17 +11,17 @@ services:
             - '.env'
         environment:
             DATABASE_URL: postgres://fish-bot-user:fish-bot-pwd@postgres:5432/fish-bot
-    db-migration-rollback:
-        build: .
-        command: npm run migrate:rollback
-        volumes:
-            - .:/app/
-        depends_on:
-            - postgres
-        env_file:
-            - '.env'
-        environment:
-            DATABASE_URL: postgres://fish-bot-user:fish-bot-pwd@postgres:5432/fish-bot
+    # db-migration-rollback:
+    #     build: .
+    #     command: npm run migrate:rollback
+    #     volumes:
+    #         - .:/app/
+    #     depends_on:
+    #         - postgres
+    #     env_file:
+    #         - '.env'
+    #     environment:
+    #         DATABASE_URL: postgres://fish-bot-user:fish-bot-pwd@postgres:5432/fish-bot
     app:
         build: .
         command: npm run dev
