@@ -57,7 +57,7 @@ async function ensureOneInstance(req: Request, res: Response) {
 }
 
 export function forEachMemberKey(guildId: string) {
-    return `4EachMemberIn-${guildId}`;
+    return `4EachMemberIn:${guildId}`;
 }
 
 export async function updateCache(guildId: string, value: any) {

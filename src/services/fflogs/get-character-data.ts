@@ -7,7 +7,7 @@ import util from 'util';
 import { sleep } from '../../utils/sleep';
 
 function generateRedisKey(...params: (string | number)[]): string {
-    return 'fflogs-zone-rankings=>' + params.join(':');
+    return 'fflogs-zone-rankings:' + params.join(':');
 }
 
 async function cacheResponse(response: any, name: string, server: Worlds, zoneId: number, difficulty: number) {

@@ -76,7 +76,7 @@ export enum CreateFFlogsRoleIds {
 }
 
 export function createFflogsRoleKey(interactionId: string) {
-    return `createFFlogsRole-${interactionId}`;
+    return `create-fflogs-role:${interactionId}`;
 }
 
 export type CreateFflogsRoleData = {
