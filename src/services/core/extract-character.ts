@@ -94,7 +94,7 @@ export type Character = {
 
 export function extractCharacter(nickname: string): Character {
     const filteredNickname = nickname.replaceAll('’', "'");
-    const nameParsed = filteredNickname.match(/([\w']* [\w']*) \W(\w*)/);
+    const nameParsed = filteredNickname.match(/([\w'-]* [\w'-]*) \W(\w*)/);
     if (!nameParsed) {
         throw new CharacterNamingError('name does not fit format `First Last (World)`');
     }
