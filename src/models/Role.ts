@@ -1,4 +1,6 @@
+import { Knex } from 'knex';
 import db from '../db';
+import { Group, groups } from './Group';
 import { roleGroupWithPriority, RoleGroupWithPriority } from './RoleGroupWithPriority';
 
 /**
@@ -31,18 +33,11 @@ export enum FFlogsDifficulty {
     normal = 100,
 }
 
-export type FFlogsZone = {
-    type: 'zone';
+export type FFlogsArea = {
+    type: 'encounter' | 'zone';
     id: number;
-    difficulty: FFlogsDifficulty;
+    difficulty?: FFlogsDifficulty;
 };
-
-export type FFlogsEncounter = {
-    type: 'encounter';
-    id: number;
-};
-
-export type FFlogsArea = FFlogsZone | FFlogsEncounter;
 
 export enum RuleType {
     noone = 'noone',
@@ -141,6 +136,27 @@ export function removeRoleFromAllGroups(roleId: string): Promise<void> {
             .where('role_id', roleId)
             .del()
             .then(() => resolve())
+            .catch((e) => reject(e));
+    });
+}
+
+export type RoleWithGroup = Pick<Role, 'guild_id' | 'discord_role_id' | 'rule'> &
+    Partial<Pick<Group, 'name'>> & {
+        priority?: number;
+        group_id?: string;
+        role_id?: string;
+    };
+
+type Result = { rows: RoleWithGroup[] };
+export function getRolesWithGroup(forGuild: string): Promise<RoleWithGroup[]> {
+    const raw = `SELECT rgwp.group_id, rgwp.role_id, r.guild_id, r.discord_role_id, r.rule, rgwp.priority, g.name
+    FROM ((${roles} r LEFT JOIN ${roleGroupWithPriority} rgwp ON r.id = rgwp.role_id) LEFT JOIN ${groups} g ON rgwp.group_id = g.id) 
+    WHERE r.guild_id=?
+    ORDER BY rgwp.group_id DESC, rgwp.priority`;
+
+    return new Promise((resolve, reject) => {
+        db.raw<Result>(raw, [forGuild])
+            .then((result) => resolve(result.rows))
             .catch((e) => reject(e));
     });
 }

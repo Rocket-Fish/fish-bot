@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { Guild } from '../../../models/Guild';
-import { createRole, deleteAllRolesFromGuild, getRoles, Role, Rule, RuleType } from '../../../models/Role';
+import { createRole, deleteAllRolesFromGuild, getRoles, getRolesWithGroup, Role, Rule, RuleType } from '../../../models/Role';
 import { convertRoleConfigToSentance, convertRoleListToSelectOptions } from '../../../utils/convert';
 import { createActionRowComponent, SelectOption } from '../components';
 import {
@@ -171,12 +171,20 @@ async function initializeCreateFFlogsRole(interactionId: string, roleId: string)
 
 async function onList(req: Request, res: Response) {
     const guild: Guild = res.locals.guild;
-    const roleList = await getRoles(guild.id);
+    const roleList = await getRolesWithGroup(guild.id);
 
     if (roleList.length === 0) {
         return res.send(respondWithMessageInEmbed('Zero Role Configurations Found', 'You have not set up any role configurations', Status.warning));
     } else {
-        const stringifiedRoleList = roleList.map((r) => `<@&${r.discord_role_id}>: ${convertRoleConfigToSentance(r)}`).join('\n');
+        const stringifiedRoleList = roleList.reduce(
+            (acc, cur) => ({
+                groupId: cur.group_id || '',
+                value: `${acc.value}${cur.group_id === acc.groupId ? '' : `\n\n**${cur.name || 'Groupless'}**`}\n<@&${
+                    cur.discord_role_id
+                }>: ${convertRoleConfigToSentance(cur.rule)}`,
+            }),
+            { groupId: '', value: '' }
+        ).value;
         return res.send(respondWithMessageInEmbed(`Found ${roleList.length} Role Configurations`, stringifiedRoleList));
     }
 }

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { Guild } from '../../../models/Guild';
 import { getRoles, Role, Rule, RuleType } from '../../../models/Role';
 import { sleep } from '../../../utils/sleep';
+import { performRoleUpdate, RoleUpdateStatus } from '../../core/perform-role-update';
 import redisClient from '../../redis-client';
 import { createActionRowComponent } from '../components';
 import { makeRefreshButton } from '../components/refresh-button';
@@ -82,83 +83,7 @@ async function onUpdateRoles(req: Request, res: Response) {
             await sleep(500);
         }
 
-        performRoleUpdate(guild, roleList, members);
+        performRoleUpdate(guild, members);
         res.send(respondWithInteractiveComponent('Updating roles for all members', [createActionRowComponent([makeRefreshButton()])], false));
-    }
-}
-
-export type RoleUpdateStatus = {
-    progress: string;
-    problems: string[];
-    isComplete: boolean;
-};
-
-async function performRoleUpdate(guild: Guild, roleList: Role[], members: GuildMember[]) {
-    try {
-        const status: RoleUpdateStatus = { progress: `0/${members.length}`, problems: [], isComplete: false };
-        await updateCache(guild.id, status);
-        let counter = 0;
-
-        for (const member of members) {
-            counter++;
-            try {
-                if (member.user.bot) throw new Error('Member is a bot');
-                const nickname = member.nick;
-                // TODO: do something with nickname
-                for (const role of roleList) {
-                    try {
-                        // check if user already has the role in question
-                        const discordRole = (member.roles as string[]).find((r) => r === role.discord_role_id);
-
-                        switch (role.rule.type) {
-                            case RuleType.everyone:
-                                // if user doesn't already have this role, give it to them
-                                if (!discordRole) {
-                                    await giveGuildMemberRole(guild.discord_guild_id, member.user.id, role.discord_role_id);
-                                }
-                                break;
-                            case RuleType.noone:
-                                // if user has this role, then remove it
-                                if (discordRole) {
-                                    await removeRoleFromGuildMember(guild.discord_guild_id, member.user.id, role.discord_role_id);
-                                }
-                                break;
-                            case RuleType.fflogs:
-                            // TODO: `Give role to users whos ...`
-                            default:
-                                status.problems.push(`RuleType [${role.rule.type}] not supported`);
-                                break;
-                        }
-                    } catch (e) {
-                        // catch role errors
-                        let problem = `<@&${role.discord_role_id}> <@${member.user.id}> - `;
-                        if (e instanceof Error) {
-                            problem = problem + e.message;
-                        } else {
-                            problem = problem + e;
-                        }
-                        status.problems.push(problem);
-                    }
-                }
-            } catch (e) {
-                // catch member errors
-                // catch role errors
-                let problem = `<@${member.user.id}> - `;
-                if (e instanceof Error) {
-                    problem = problem + e.message;
-                } else {
-                    problem = problem + e;
-                }
-                status.problems.push(problem);
-            }
-
-            status.progress = `${counter}/${members.length}`;
-            await updateCache(guild.id, status);
-        }
-        status.isComplete = true;
-        await updateCache(guild.id, status);
-    } catch (e) {
-        // catch system errors
-        console.log(e);
     }
 }

@@ -177,8 +177,8 @@ async function onAddRole(req: Request, res: Response) {
         await initializeAddRole(body.id);
         return res.send(
             respondWithInteractiveComponent('Select a role and select a role group to add the role to', [
-                createActionRowComponent([makeAddRoleToGroupMenu1(roleConfigMenuOptions)]),
                 createActionRowComponent([makeAddRoleToGroupMenu2(groupMenuOptions)]),
+                createActionRowComponent([makeAddRoleToGroupMenu1(roleConfigMenuOptions)]),
             ])
         );
     }

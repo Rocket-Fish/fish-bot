@@ -1,9 +1,8 @@
-import { Role, RuleType } from '../models/Role';
+import { Role, Rule, RuleType } from '../models/Role';
 import { Group } from '../models/Group';
 import { SelectOption } from '../services/discord/components';
 
-export function convertRoleConfigToSentance(role: Role) {
-    const { rule } = role;
+export function convertRoleConfigToSentance(rule: Rule) {
     switch (rule.type) {
         case RuleType.everyone:
             return `Role will be given to everyone`;
@@ -22,7 +21,7 @@ export function convertRoleListToSelectOptions(roleList: Role[], guildRoleList: 
     const menuOptionsList: SelectOption[] = roleList.map((r) => ({
         label: `@${guildRoleList.find((rr: any) => rr.id === r.discord_role_id)?.name || r.discord_role_id}`,
         value: r.id,
-        description: convertRoleConfigToSentance(r),
+        description: convertRoleConfigToSentance(r.rule),
     }));
 
     return menuOptionsList;

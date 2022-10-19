@@ -2,8 +2,9 @@ import { InteractionResponseType } from 'discord-interactions';
 import { Request, Response } from 'express';
 import { ButtonComponent, ComponentButtonStyles, createButtonComponent } from '.';
 import { Guild } from '../../../models/Guild';
+import { RoleUpdateStatus } from '../../core/perform-role-update';
 import redisClient from '../../redis-client';
-import { forEachMemberKey, RoleUpdateStatus } from '../commands/for-each-member-in-server';
+import { forEachMemberKey } from '../commands/for-each-member-in-server';
 
 export function makeRefreshButton(): ButtonComponent {
     return createButtonComponent({

@@ -22,7 +22,7 @@ export async function requestToDiscord(endpoint: string, config?: AxiosRequestCo
             headers: {
                 Authorization: `Bot ${DISCORD_TOKEN}`,
                 'Content-Type': 'application/json; charset=UTF-8',
-                'User-Agent': 'FishBot (https://github.com/Rocket-Fish/fish-bot, 1.0.0)',
+                'User-Agent': 'FishBot (https://github.com/Rocket-Fish/fish-bot, 0.0.1)',
             },
             ...config,
         });
@@ -54,7 +54,7 @@ function logFailedRequestToDiscord(err: unknown) {
                 colors: true,
             })
         );
-    else console.log('Unkown error has occured');
+    else console.log('Unknown error has occurred');
 }
 
 export default requestToDiscord;
