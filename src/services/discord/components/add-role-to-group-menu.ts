@@ -27,7 +27,7 @@ export enum AddRole2GroupMenuIds {
 }
 
 export function addRole2GroupKey(interactionId: string) {
-    return `addRole2Group-${interactionId}`;
+    return `addRole2Group:${interactionId}`;
 }
 
 export type AddRole2GroupMenuIdsToData = {
