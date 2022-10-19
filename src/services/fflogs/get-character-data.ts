@@ -40,20 +40,23 @@ export async function getCharacterZoneRankings(
         return JSON.parse(cachedResult);
     } else {
         try {
-            const response = await requestToFflogs(`
-        query {
-            rateLimitData {
-                limitPerHour,
-                pointsSpentThisHour,
-                pointsResetIn
-            },
-            characterData {
-                character(name: "${name}", serverSlug: "${server.toLowerCase()}", serverRegion: "${worldToRegion[server]}") {
-                    zoneRankings(zoneID: ${zoneId}, timeframe: Today, metric: rdps, difficulty: ${difficulty}, includePrivateLogs: true)
-                }
-            }
+            const response = await requestToFflogs(
+                `
+query {
+    rateLimitData {
+        limitPerHour,
+        pointsSpentThisHour,
+        pointsResetIn
+    },
+    characterData {
+        character(name: "${name}", serverSlug: "${server.toLowerCase()}", serverRegion: "${worldToRegion[server]}") {
+            zoneRankings(zoneID: ${zoneId}, timeframe: Today, metric: rdps, difficulty: ${difficulty}, includePrivateLogs: true)
         }
-        `);
+    }
+}`
+                    .replace(/ {2,}/g, '')
+                    .replace(/[\n\t]/g, '')
+            );
             await cacheResponse(response.data.characterData, name, server, zoneId, difficulty);
             await cacheRateLimit(response.data.rateLimitData);
             return response.data.characterData;

@@ -56,6 +56,11 @@ export function makeConditionMenu(): MenuComponent {
         placeholder: 'Under what condition should the operand be subjected to?',
         options: [
             {
+                label: 'Greater than 3',
+                value: RuleCondition.greaterThan3,
+                description: 'Operand must be greater than three',
+            },
+            {
                 label: 'Greater than 4',
                 value: RuleCondition.greaterThan4,
                 description: 'Operand must be greater than four',

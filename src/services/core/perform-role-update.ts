@@ -101,7 +101,7 @@ async function handleRoles(guild: Guild, roleList: RoleWithGroup[], member: Guil
             }
         } catch (e) {
             // catch role errors
-            if (e instanceof CharacterNamingError) {
+            if (e instanceof CharacterNamingError || e instanceof ZoneRankingMissingError) {
                 problems.push(`<@${member.user.id}> - ${e.message}`);
                 break;
             } else {
@@ -126,8 +126,8 @@ async function handleFflogsRuleType(guild: Guild, rule: FFlogsRule, role: Exclud
         // only zone areas have difficulty level, encounters don't have it
         const characterZoneRankings = await getCharacterZoneRankings(character.name, character.world, rule.area.id, rule.area.difficulty);
         // TODO: refactor
+        if (!characterZoneRankings?.character?.zoneRankings?.rankings) throw new ZoneRankingMissingError('Zone Ranking is missing');
         const rankings: Ranking[] = characterZoneRankings.character.zoneRankings.rankings;
-
         const isRuleSatisfied = conditionComparison[rule.condition](resolvedOperand[rule.operand](rankings));
         // if user doesn't already have this role, give it to them
         if (isRuleSatisfied && !doesMemberHaveRole(member, role)) {
@@ -161,4 +161,12 @@ const resolvedOperand: OperandToResolve = {
 
 const conditionComparison: ConditionToBoolean = {
     [RuleCondition.greaterThan4]: (operand: number) => operand > 4,
+    [RuleCondition.greaterThan3]: (operand: number) => operand > 3,
 };
+
+export class ZoneRankingMissingError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'ZoneRankingMissingError';
+    }
+}

@@ -52,6 +52,7 @@ export enum RuleOperand {
 }
 
 export enum RuleCondition {
+    greaterThan3 = 'greater_than_3',
     greaterThan4 = 'greater_than_4',
 }
 
