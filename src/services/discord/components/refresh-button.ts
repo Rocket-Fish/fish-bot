@@ -26,7 +26,7 @@ export async function handleRefreshStatus(req: Request, res: Response) {
         }`;
         const discordMessageMaxLength = 1999;
         if (content.length > discordMessageMaxLength) {
-            content = content.substring(0, discordMessageMaxLength - 5) + '[...]';
+            content = content.substring(0, discordMessageMaxLength - 5) + '[...]'; // TODO: message concatenation
         }
 
         return res.send({

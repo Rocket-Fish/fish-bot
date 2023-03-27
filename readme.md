@@ -1,15 +1,14 @@
+# What is Fish Bot?
+
+Fish bot is a Discord Bot that can help your discord server automate role assignment in relation to their current rankings on FFLogs.
+
 # Running Fish Bot
-
-## Maybe strange styling choices:
-
-1. `export const ENV_VARIABLE_NAME = process.env.ENV_VARIABLE_NAME;` using capitalized snake case here becuase these are effectively global variables.
-2. `export enum DiscordType { GUILD_TEXT = 1}` the property is capitalized snake case because discord api does it so doing it for consistenty
-
-Everything else should follow standard typescript guidelines
 
 ## Setup env variables
 
-// TODO: write about setup env variables
+`cp .env.sample .env`
+
+fill in those environment variables. see [More Resources](#more-resources) section for help if needed
 
 ## DB migrations
 
@@ -47,6 +46,13 @@ https://knexjs.org
 https://devhints.io/knex
 
 https://en.wikipedia.org/wiki/Snowflake_ID
+
+## Some maybe strange styling choices in this project:
+
+1. `export const ENV_VARIABLE_NAME = process.env.ENV_VARIABLE_NAME;` using capitalized snake case here becuase these are effectively global variables.
+2. `export enum DiscordType { GUILD_TEXT = 1}` the property is capitalized snake case because discord api does it so doing it for consistenty
+
+Everything else should follow standard typescript guidelines
 
 ## Notes about fflogs
 
