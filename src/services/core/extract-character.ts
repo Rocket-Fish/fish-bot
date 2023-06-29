@@ -26,6 +26,10 @@ export enum Worlds {
     Lamia = 'Lamia',
     Leviathan = 'Leviathan',
     Ultros = 'Ultros',
+    Halicarnassus = 'Halicarnassus',
+    Maduin = 'Maduin',
+    Marilith = 'Marilith',
+    Seraph = 'Seraph',
 
     // EU
     Cerberus = 'Cerberus',

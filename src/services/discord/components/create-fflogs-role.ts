@@ -14,6 +14,10 @@ export function makeZoneMenu(): MenuComponent {
         min_values: 1,
         options: [
             {
+                label: 'Anabaseios Savage',
+                value: `54,${FFlogsDifficulty.savage}`,
+            },
+            {
                 label: 'Abyssos Savage',
                 value: `49,${FFlogsDifficulty.savage}`,
             },
@@ -56,14 +60,14 @@ export function makeConditionMenu(): MenuComponent {
         placeholder: 'Under what condition should the operand be subjected to?',
         options: [
             {
-                label: 'Greater than 3',
-                value: RuleCondition.greaterThan3,
-                description: 'Operand must be greater than three',
+                label: '>= 4',
+                value: RuleCondition.greaterThanOrEqualTo4,
+                description: 'Operand must be greater than or equal to four',
             },
             {
-                label: 'Greater than 4',
-                value: RuleCondition.greaterThan4,
-                description: 'Operand must be greater than four',
+                label: '>= 3',
+                value: RuleCondition.greaterThanOrEqualTo3,
+                description: 'Operand must be greater than or equal to three',
             },
         ],
     });
