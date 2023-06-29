@@ -156,12 +156,12 @@ type ConditionToBoolean = {
 const resolvedOperand: OperandToResolve = {
     [RuleOperand.numberOrangeParses]: (rankings: Ranking[]) => rankings.reduce((acc, cur) => acc + Number(cur.rankPercent >= 95), 0),
     [RuleOperand.numberPinkParses]: (rankings: Ranking[]) => rankings.reduce((acc, cur) => acc + Number(cur.rankPercent >= 99), 0),
-    [RuleOperand.numberPurpleParses]: (rankings: Ranking[]) => rankings.reduce((acc, cur) => acc + Number(cur.rankPercent >= 76), 0),
+    [RuleOperand.numberPurpleParses]: (rankings: Ranking[]) => rankings.reduce((acc, cur) => acc + Number(cur.rankPercent >= 75), 0),
 };
 
 const conditionComparison: ConditionToBoolean = {
-    [RuleCondition.greaterThan4]: (operand: number) => operand > 4,
-    [RuleCondition.greaterThan3]: (operand: number) => operand > 3,
+    [RuleCondition.greaterThanOrEqualTo4]: (operand: number) => operand >= 4,
+    [RuleCondition.greaterThanOrEqualTo3]: (operand: number) => operand >= 3,
 };
 
 export class ZoneRankingMissingError extends Error {
