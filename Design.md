@@ -80,9 +80,13 @@ Ordered vs Unordered groups, Ordered groups are a groups where the ordering of r
 -   [x] Update roles based on every rule and group
 -   [ ] Filter specific rules or groups to update like for example, every single rule/group, only apply all public groups, only apply specific group
 
-### /for-each-member-in-server dry-run-update-roles
+### /dry-run for-each-member-in-server update-roles
 
 -   [ ] same functionality as `/for-each-member-in-server update-roles` but dumps changes out to chat instead actually performing changes
+
+### /dry-run server-member update-roles `user: <@number>`
+
+-   [ ] same functionality as `/dry-run for-each-member-in-server update-roles` but only applies it to one person, mainly for debugging specific people
 
 ## Server Member Commands
 
@@ -92,4 +96,4 @@ Ordered vs Unordered groups, Ordered groups are a groups where the ordering of r
 
 ### /update-a-group-of-roles
 
--   [ ] Dropdown Select: a
+-   [ ] Dropdown Select: which role group to apply
