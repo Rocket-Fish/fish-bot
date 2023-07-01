@@ -67,6 +67,7 @@ export const group: ApplicationCommand = {
             type: ApplicationCommandOptionTypes.SUB_COMMAND,
         },
     ],
+    default_member_permissions: '0', // default to disable for everyone except server admins
 };
 
 export async function handleGroupCommand(req: Request, res: Response) {
