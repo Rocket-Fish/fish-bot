@@ -65,8 +65,10 @@ async function handleRoles(guild: Guild, roleList: RoleWithGroup[], member: Guil
     for (const role of roleList) {
         try {
             if (isCurrentGroupCompleted(groupCompletionStatus, role)) {
-                // for now just skip
-                // TODO: in the future, we need to remove other roles in group, because roles in groups are mutually exclusive
+                // if the user has any remaining roles, then remove them
+                if (doesMemberHaveRole(member, role)) {
+                    await removeRoleFromGuildMember(guild.discord_guild_id, member.user.id, role.discord_role_id);
+                }
                 continue;
             }
 
@@ -90,9 +92,18 @@ async function handleRoles(guild: Guild, roleList: RoleWithGroup[], member: Guil
                     }
                     break;
                 case RuleType.fflogs:
-                    const didRuleApply = await handleFflogsRuleType(guild, role.rule, role, member);
-                    if (role.group_id && didRuleApply) {
-                        groupCompletionStatus[role.group_id] = true;
+                    const isRuleSatisfied = await isFflogsRuleSatisfied(guild, role.rule, role, member);
+
+                    if (isRuleSatisfied) {
+                        if (!doesMemberHaveRole(member, role)) {
+                            await giveGuildMemberRole(guild.discord_guild_id, member.user.id, role.discord_role_id);
+                        }
+                        if (role.group_id) {
+                            groupCompletionStatus[role.group_id] = true;
+                        }
+                    } else if (doesMemberHaveRole(member, role)) {
+                        // remove role if the user no longer satisfy conditions for the role
+                        await removeRoleFromGuildMember(guild.discord_guild_id, member.user.id, role.discord_role_id);
                     }
                     break;
                 default:
@@ -118,22 +129,17 @@ async function handleRoles(guild: Guild, roleList: RoleWithGroup[], member: Guil
     return problems;
 }
 
-async function handleFflogsRuleType(guild: Guild, rule: FFlogsRule, role: Exclude<RoleWithGroup, 'rule'>, member: GuildMember): Promise<boolean> {
+async function isFflogsRuleSatisfied(guild: Guild, rule: FFlogsRule, role: Exclude<RoleWithGroup, 'rule'>, member: GuildMember): Promise<boolean> {
     const nickname = member.nick;
     const character = extractCharacter(nickname || '');
 
     if (rule.area.difficulty) {
         // only zone areas have difficulty level, encounters don't have it
         const characterZoneRankings = await getCharacterZoneRankings(character.name, character.world, rule.area.id, rule.area.difficulty);
-        // TODO: refactor
         if (!characterZoneRankings?.character?.zoneRankings?.rankings) throw new ZoneRankingMissingError('Zone Ranking is missing');
         const rankings: Ranking[] = characterZoneRankings.character.zoneRankings.rankings;
         const isRuleSatisfied = conditionComparison[rule.condition](resolvedOperand[rule.operand](rankings));
-        // if user doesn't already have this role, give it to them
-        if (isRuleSatisfied && !doesMemberHaveRole(member, role)) {
-            await giveGuildMemberRole(guild.discord_guild_id, member.user.id, role.discord_role_id);
-            return true;
-        }
+        return isRuleSatisfied;
     } else {
         // TODO: implement role rule area type 'encounter'
     }

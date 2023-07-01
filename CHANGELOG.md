@@ -16,3 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Less confusing UX: `greaterThan3` and `greaterThan4` are now `greaterThanOrEqualTo3` and `greaterThanOrEqualTo4` should fix [https://github.com/Rocket-Fish/fish-bot/issues/2]
 -   `convertRoleListToSelectOptions` now has a description limit of 100 characters
+
+### Fixed
+
+-   Issue with `ordered` groups not setting the correct roles if a user already has a given role
+-   Issue with `ordered` groups not removing roles that a user is no longer qualified for, or has met requirements for a higher priority role
