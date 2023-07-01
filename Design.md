@@ -24,7 +24,7 @@ Ordered vs Unordered groups, Ordered groups are a groups where the ordering of r
     -   [x] Dropdown Select: Operand
     -   [x] Dropdown Select: Condition
 
--   [ ]Future TODO: support more complex role rules
+-   [ ] Future TODO: support more complex role rules
 
 ### ☑️ /role list
 
@@ -82,7 +82,7 @@ Ordered vs Unordered groups, Ordered groups are a groups where the ordering of r
 
 ### /for-each-member-in-server dry-run-update-roles
 
--   [] same functionality as `/for-each-member-in-server update-roles` but dumps changes out to chat instead actually performing changes
+-   [ ] same functionality as `/for-each-member-in-server update-roles` but dumps changes out to chat instead actually performing changes
 
 ## Server Member Commands
 
