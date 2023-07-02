@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Support for Zone 54 Anabaseios [https://github.com/Rocket-Fish/fish-bot/issues/3]
 -   Support for Characters on the 4th NA DC dynamis
+-   Added two properties to Groups: Order, and Publicity
 
 ### Changed
 

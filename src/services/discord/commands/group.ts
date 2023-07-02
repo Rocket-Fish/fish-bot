@@ -15,10 +15,17 @@ import { makeDeleteGroupMenu } from '../components/delete-role-group-menu';
 import { getGuildRoles } from '../guilds';
 import { respondWithInteractiveComponent, respondWithMessageInEmbed, Status } from '../respondToInteraction';
 import { ApplicationCommand, ApplicationCommandOptionTypes, ApplicationCommandTypes } from '../types';
-import { groupNameInput } from './options/role-group-name-input';
+import { groupCustomize, groupNameInput } from './options/role-group-name-input';
 import { role, RoleOptions } from './role';
 import { ActionNotImplemented } from './types';
 import { makeRemoveRoleFromGroupMenu } from '../components/remove-role-from-group-menu';
+import {
+    CreateGroupMenuIds,
+    CreateGroupMenuIdsToData,
+    cacheCreateGroupMenuUserSelection,
+    makeCreateGroupMenu1,
+    makeCreateGroupMenu2,
+} from '../components/create-group-menu';
 
 export enum GroupOptions {
     create = 'create',
@@ -39,7 +46,7 @@ export const group: ApplicationCommand = {
             name: GroupOptions.create,
             description: 'Create a role group',
             type: ApplicationCommandOptionTypes.SUB_COMMAND,
-            options: [groupNameInput],
+            options: [groupNameInput, groupCustomize],
         },
         {
             name: GroupOptions.list,
@@ -93,15 +100,36 @@ export async function handleGroupCommand(req: Request, res: Response) {
 }
 
 async function onCreate(req: Request, res: Response) {
-    const { data } = req.body;
+    const { data, id } = req.body;
+
     const guild: Guild = res.locals.guild;
 
     let name: string = data.options[0].options[0].value;
     name = name.replaceAll(/[^a-zA-Z0-9 -]/g, '');
 
-    await createGroup(guild.id, name);
+    const customize: string | undefined = data.options[0].options?.[1]?.value;
 
-    return res.send(respondWithMessageInEmbed(`Role-Group Created`, `name: ${name}`));
+    if (customize) {
+        await initializeCreateCustomGroupCache(id, name);
+        return res.send(
+            respondWithInteractiveComponent('Select Options for Group', [
+                createActionRowComponent([makeCreateGroupMenu1()]),
+                createActionRowComponent([makeCreateGroupMenu2()]),
+            ])
+        );
+    } else {
+        await createGroup(guild.id, name);
+        return res.send(respondWithMessageInEmbed(`Role-Group Created`, `name: ${name}\nType: Private Unordered`));
+    }
+}
+
+async function initializeCreateCustomGroupCache(interactionId: string, name: string) {
+    const value = {
+        [CreateGroupMenuIds.name]: name,
+        [CreateGroupMenuIds.isOrdered]: '',
+        [CreateGroupMenuIds.isPublic]: '',
+    };
+    return await cacheCreateGroupMenuUserSelection(interactionId, value);
 }
 
 async function onList(req: Request, res: Response) {

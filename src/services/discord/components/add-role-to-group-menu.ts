@@ -43,7 +43,7 @@ async function getCachedSelection(interactionId: string) {
 }
 
 function isSelectionComplete(value: AddRole2GroupMenuIdsToData) {
-    return value['add-role-to-group_select-group'] && value['add-role-to-group_select-role'];
+    return value[AddRole2GroupMenuIds.roleMenu] && value[AddRole2GroupMenuIds.groupMenu];
 }
 
 export async function handleAddRoleToGroup(req: Request, res: Response) {

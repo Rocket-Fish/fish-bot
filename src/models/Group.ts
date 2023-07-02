@@ -6,14 +6,16 @@ export type Group = {
     name: string;
     created_at: number;
     updated_at: number;
+    is_ordered: boolean;
+    is_public: boolean;
 };
 
 export const groups = 'groups';
 
-export function createGroup(guild_id: string, name: string): Promise<void> {
+export function createGroup(guild_id: string, name: string, is_ordered = false, is_public = false): Promise<void> {
     return new Promise((resolve, reject) => {
         db.from<Group>(groups)
-            .insert({ name, guild_id })
+            .insert({ name, guild_id, is_ordered, is_public })
             .then(() => resolve())
             .catch((e) => reject(e));
     });
