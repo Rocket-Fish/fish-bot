@@ -93,28 +93,19 @@ export function createActionRowComponent(components: [MenuComponent] | ButtonCom
     };
 }
 
-export type InteractiveComponentConfig = {
-    enableCaching: boolean; // caching needs to be enabled for any interactive component that has more than one dropdown menu and needs to persist state between each selection
-};
-
-export class InteractiveComponent<T extends object & (keyof T extends string ? {} : 'T in Interactive Component must have string keys')> {
+export class CachedInteractiveComponent<T extends object & (keyof T extends string ? {} : 'T in Interactive Component must have string keys')> {
     protected identifier: string;
-    protected config: InteractiveComponentConfig;
     protected generateInteraction: (options?: SelectOption[][]) => InteractionResponse;
-    protected handleInteraction: (req: Request, res: Response, cache?: T) => any;
+    protected handleInteraction: (req: Request, res: Response, cache: T) => any;
 
     constructor(
         identifier: string,
         generateInteraction: (options?: SelectOption[][]) => InteractionResponse,
-        handleInteraction: (req: Request, res: Response, cache?: T) => any,
-        config = {
-            enableCaching: true,
-        }
+        handleInteraction: (req: Request, res: Response, cache: T) => any
     ) {
         this.identifier = identifier;
         this.generateInteraction = generateInteraction;
         this.handleInteraction = handleInteraction;
-        this.config = config;
     }
 
     protected async setCache(interactionId: string, cache: T) {
@@ -125,16 +116,8 @@ export class InteractiveComponent<T extends object & (keyof T extends string ? {
         return await redisClient.get(`${this.identifier}:${interactionId}`);
     }
 
-    public async initInteraction(options?: SelectOption[][], interactionId?: string, cache?: T) {
-        if (this.config.enableCaching) {
-            if (interactionId && cache) {
-                await this.setCache(interactionId, cache);
-            } else {
-                throw new Error(
-                    `Interactive Component ${this.identifier} failed to initialize cache, missing interaction id or initial cache structure`
-                );
-            }
-        }
+    public async initInteraction(interactionId: string, cache: T, options?: SelectOption[][]) {
+        await this.setCache(interactionId, cache);
         return this.generateInteraction(options);
     }
 
@@ -143,29 +126,26 @@ export class InteractiveComponent<T extends object & (keyof T extends string ? {
         const { data } = body;
         const interactionId: string = body.message.interaction.id;
 
-        let updatedCache = undefined;
-        if (this.config.enableCaching) {
-            const rawCache = await this.getCache(interactionId);
-            if (!rawCache) {
-                return res.send({
-                    type: InteractionResponseType.UPDATE_MESSAGE,
-                    data: {
-                        content: 'This component has timed out, please run the command again',
-                        components: [],
-                    },
-                });
-            }
-
-            const cache: T = JSON.parse(rawCache);
-            const key: keyof T = data.custom_id;
-
-            updatedCache = {
-                ...cache,
-                [key]: data.values[0],
-            };
-
-            this.setCache(interactionId, updatedCache);
+        const rawCache = await this.getCache(interactionId);
+        if (!rawCache) {
+            return res.send({
+                type: InteractionResponseType.UPDATE_MESSAGE,
+                data: {
+                    content: 'This component has timed out, please run the command again',
+                    components: [],
+                },
+            });
         }
+
+        const cache: T = JSON.parse(rawCache);
+        const key: keyof T = data.custom_id;
+
+        const updatedCache = {
+            ...cache,
+            [key]: data.values[0],
+        };
+
+        this.setCache(interactionId, updatedCache);
 
         return await this.handleInteraction(req, res, updatedCache);
     }

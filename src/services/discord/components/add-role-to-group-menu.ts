@@ -1,12 +1,16 @@
 import { InteractionResponseType } from 'discord-interactions';
 import { Request, Response } from 'express';
-import { SelectOption, createMenuComponent, InteractiveComponent, createActionRowComponent, MenuComponent } from '.';
+import { SelectOption, createMenuComponent, CachedInteractiveComponent, createActionRowComponent, MenuComponent } from '.';
 import { createRoleGroupWithPriority } from '../../../models/RoleGroupWithPriority';
 import { respondWithAcknowledgement, respondWithInteractiveComponent } from '../respondToInteraction';
 
 export const ADD_ROLE_2_GROUP = 'addRole2Group';
 
-export const addRole2GroupMenu = new InteractiveComponent<AddRole2GroupPropertiesToData>(ADD_ROLE_2_GROUP, generateInteraction, handleAddRoleToGroup);
+export const addRole2GroupMenu = new CachedInteractiveComponent<AddRole2GroupPropertiesToData>(
+    ADD_ROLE_2_GROUP,
+    generateInteraction,
+    handleAddRoleToGroup
+);
 
 // TODO:  SelectOption[][] is confusing on which option is 0 and which option is 1, so this could be refactored to be better
 function generateInteraction(options?: SelectOption[][]) {
@@ -46,12 +50,7 @@ function isSelectionComplete(value: AddRole2GroupPropertiesToData) {
     return value[AddRole2GroupProperties.roleMenu] && value[AddRole2GroupProperties.groupMenu];
 }
 
-async function handleAddRoleToGroup(req: Request, res: Response, cache?: AddRole2GroupPropertiesToData) {
-    if (!cache) throw new Error(`This interaction requires cache to work`);
-    const { body } = req;
-    const { data } = body;
-    const interactionId: string = body.message.interaction.id;
-
+async function handleAddRoleToGroup(req: Request, res: Response, cache: AddRole2GroupPropertiesToData) {
     if (isSelectionComplete(cache)) {
         await createRoleGroupWithPriority(cache[AddRole2GroupProperties.roleMenu], cache[AddRole2GroupProperties.groupMenu]);
 

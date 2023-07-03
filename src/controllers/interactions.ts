@@ -13,7 +13,7 @@ import { handleRefreshStatus, makeRefreshButton } from '../services/discord/comp
 import { respondWithMessageInEmbed, Status } from '../services/discord/respondToInteraction';
 import { HTTPError } from '../services/http';
 import { makeRemoveRoleFromGroupMenu, handleRemoveRoleFromGroupMenu } from '../services/discord/components/remove-role-from-group-menu';
-import { makeZoneMenu, makeOperandMenu, makeConditionMenu, handleCreateFFlogsRole } from '../services/discord/components/create-fflogs-role';
+import { CreateFFlogsRoleProperties, createFflogsRole } from '../services/discord/components/create-fflogs-role';
 import { CreateGroupProperties, createGroupMenu } from '../services/discord/components/create-group-menu';
 
 export async function handleInteractions(req: Request, res: Response) {
@@ -70,11 +70,11 @@ export async function handleInteractions(req: Request, res: Response) {
                     return await addRole2GroupMenu.handler(req, res);
                 case makeRemoveRoleFromGroupMenu([]).custom_id:
                     return await handleRemoveRoleFromGroupMenu(req, res);
-                case makeZoneMenu().custom_id:
-                case makeOperandMenu().custom_id:
-                case makeConditionMenu().custom_id:
+                case CreateFFlogsRoleProperties.selectCondition:
+                case CreateFFlogsRoleProperties.selectOperand:
+                case CreateFFlogsRoleProperties.selectZone:
                     [req, res] = await populateGuild(req, res);
-                    return await handleCreateFFlogsRole(req, res);
+                    return await createFflogsRole.handler(req, res);
                 case CreateGroupProperties.isPublic:
                 case CreateGroupProperties.isOrdered:
                     [req, res] = await populateGuild(req, res);

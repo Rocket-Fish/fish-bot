@@ -1,11 +1,15 @@
 import { Request, Response } from 'express';
-import { createMenuComponent, InteractiveComponent, createActionRowComponent } from '.';
+import { createMenuComponent, CachedInteractiveComponent, createActionRowComponent } from '.';
 import { InteractionResponseType } from 'discord-interactions';
 import { createGroup } from '../../../models/Group';
 import { respondWithAcknowledgement, respondWithInteractiveComponent } from '../respondToInteraction';
 
 export const CREATE_GROUP = 'CreateGroup';
-export const createGroupMenu = new InteractiveComponent<CreateGroupPropertiesToData>(CREATE_GROUP, generateInteraction, handleCreateCustomGroup);
+export const createGroupMenu = new CachedInteractiveComponent<CreateGroupPropertiesToData>(
+    CREATE_GROUP,
+    generateInteraction,
+    handleCreateCustomGroup
+);
 
 function generateInteraction() {
     return respondWithInteractiveComponent('Select Options for Group', [
@@ -62,11 +66,7 @@ function isSelectionComplete(value: CreateGroupPropertiesToData) {
     return value[CreateGroupProperties.isPublic] && value[CreateGroupProperties.isOrdered];
 }
 
-async function handleCreateCustomGroup(req: Request, res: Response, cache?: CreateGroupPropertiesToData) {
-    if (!cache) throw new Error(`This interaction requires cache to work`);
-    const { body } = req;
-    const { data } = body;
-    const interactionId: string = body.message.interaction.id;
+async function handleCreateCustomGroup(req: Request, res: Response, cache: CreateGroupPropertiesToData) {
     const guild = res.locals.guild;
 
     if (isSelectionComplete(cache)) {

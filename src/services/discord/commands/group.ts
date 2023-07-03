@@ -88,7 +88,7 @@ export async function handleGroupCommand(req: Request, res: Response) {
 }
 
 async function onCreate(req: Request, res: Response) {
-    const { data, id } = req.body;
+    const { data, id: interactionId } = req.body;
 
     const guild: Guild = res.locals.guild;
 
@@ -98,7 +98,7 @@ async function onCreate(req: Request, res: Response) {
     const customize: string | undefined = data.options[0].options?.[1]?.value;
 
     if (customize) {
-        const response = await createGroupMenu.initInteraction(undefined, id, {
+        const response = await createGroupMenu.initInteraction(interactionId, {
             [CreateGroupProperties.name]: name,
             [CreateGroupProperties.isOrdered]: '',
             [CreateGroupProperties.isPublic]: '',
@@ -148,6 +148,7 @@ async function onDeleteAll(req: Request, res: Response) {
 
 async function onAddRole(req: Request, res: Response) {
     const { body } = req;
+    const { id: interactionId } = body;
 
     const guild: Guild = res.locals.guild;
     const groupList = await getGroups(guild.id);
@@ -174,10 +175,14 @@ async function onAddRole(req: Request, res: Response) {
         const roleConfigMenuOptions: SelectOption[] = convertRoleListToSelectOptions(roleList, guildRoleList);
         const groupMenuOptions = convertGroupListToSelectOptions(groupList);
 
-        const response = addRole2GroupMenu.initInteraction([roleConfigMenuOptions, groupMenuOptions], body.id, {
-            [AddRole2GroupProperties.roleMenu]: '',
-            [AddRole2GroupProperties.groupMenu]: '',
-        });
+        const response = await addRole2GroupMenu.initInteraction(
+            interactionId,
+            {
+                [AddRole2GroupProperties.roleMenu]: '',
+                [AddRole2GroupProperties.groupMenu]: '',
+            },
+            [roleConfigMenuOptions, groupMenuOptions]
+        );
         return res.send(response);
     }
 }
