@@ -1,16 +1,10 @@
 import { Request, Response } from 'express';
 import { Guild } from '../../../models/Guild';
-import { getGroupedRoles, getGrouplessRoles, getRoles } from '../../../models/Role';
+import { getGroupedRoles, getGrouplessRoles } from '../../../models/Role';
 import { createGroup, deleteAllGroupsForGuild, getGroups } from '../../../models/Group';
 import { convertGroupListToSelectOptions, convertRoleListToSelectOptions } from '../../../utils/convert';
 import { SelectOption, createActionRowComponent } from '../components';
-import {
-    AddRole2GroupMenuIds,
-    AddRole2GroupMenuIdsToData,
-    cacheUserSelection,
-    makeAddRoleToGroupMenu1,
-    makeAddRoleToGroupMenu2,
-} from '../components/add-role-to-group-menu';
+import { AddRole2GroupProperties, addRole2GroupMenu } from '../components/add-role-to-group-menu';
 import { makeDeleteGroupMenu } from '../components/delete-role-group-menu';
 import { getGuildRoles } from '../guilds';
 import { respondWithInteractiveComponent, respondWithMessageInEmbed, Status } from '../respondToInteraction';
@@ -19,7 +13,7 @@ import { groupCustomize, groupNameInput } from './options/role-group-name-input'
 import { role, RoleOptions } from './role';
 import { ActionNotImplemented } from './types';
 import { makeRemoveRoleFromGroupMenu } from '../components/remove-role-from-group-menu';
-import { CreateGroupMenuProperties, createGroupMenu } from '../components/create-group-menu';
+import { CreateGroupProperties, createGroupMenu } from '../components/create-group-menu';
 
 export enum GroupOptions {
     create = 'create',
@@ -105,9 +99,9 @@ async function onCreate(req: Request, res: Response) {
 
     if (customize) {
         const response = await createGroupMenu.initInteraction(undefined, id, {
-            [CreateGroupMenuProperties.name]: name,
-            [CreateGroupMenuProperties.isOrdered]: '',
-            [CreateGroupMenuProperties.isPublic]: '',
+            [CreateGroupProperties.name]: name,
+            [CreateGroupProperties.isOrdered]: '',
+            [CreateGroupProperties.isPublic]: '',
         });
         return res.send(response);
     } else {
@@ -152,14 +146,6 @@ async function onDeleteAll(req: Request, res: Response) {
     return res.send(respondWithMessageInEmbed(`Success`, 'All role groups has been deleted'));
 }
 
-async function initializeAddRole(interactionId: string) {
-    const value: AddRole2GroupMenuIdsToData = {
-        [AddRole2GroupMenuIds.roleMenu]: '',
-        [AddRole2GroupMenuIds.groupMenu]: '',
-    };
-    cacheUserSelection(interactionId, value);
-}
-
 async function onAddRole(req: Request, res: Response) {
     const { body } = req;
 
@@ -187,13 +173,12 @@ async function onAddRole(req: Request, res: Response) {
         const guildRoleList = await getGuildRoles(guild.discord_guild_id);
         const roleConfigMenuOptions: SelectOption[] = convertRoleListToSelectOptions(roleList, guildRoleList);
         const groupMenuOptions = convertGroupListToSelectOptions(groupList);
-        await initializeAddRole(body.id);
-        return res.send(
-            respondWithInteractiveComponent('Select a role and select a role group to add the role to', [
-                createActionRowComponent([makeAddRoleToGroupMenu2(groupMenuOptions)]),
-                createActionRowComponent([makeAddRoleToGroupMenu1(roleConfigMenuOptions)]),
-            ])
-        );
+
+        const response = addRole2GroupMenu.initInteraction([roleConfigMenuOptions, groupMenuOptions], body.id, {
+            [AddRole2GroupProperties.roleMenu]: '',
+            [AddRole2GroupProperties.groupMenu]: '',
+        });
+        return res.send(response);
     }
 }
 

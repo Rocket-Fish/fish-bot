@@ -1,79 +1,59 @@
 import { InteractionResponseType } from 'discord-interactions';
 import { Request, Response } from 'express';
-import { SelectOption, MenuComponent, createMenuComponent } from '.';
+import { SelectOption, createMenuComponent, InteractiveComponent, createActionRowComponent, MenuComponent } from '.';
 import { createRoleGroupWithPriority } from '../../../models/RoleGroupWithPriority';
-import redisClient from '../../redis-client';
-import { respondWithAcknowledgement } from '../respondToInteraction';
+import { respondWithAcknowledgement, respondWithInteractiveComponent } from '../respondToInteraction';
 
-export function makeAddRoleToGroupMenu1(options: SelectOption[]): MenuComponent {
+export const ADD_ROLE_2_GROUP = 'addRole2Group';
+
+export const addRole2GroupMenu = new InteractiveComponent<AddRole2GroupPropertiesToData>(ADD_ROLE_2_GROUP, generateInteraction, handleAddRoleToGroup);
+
+// TODO:  SelectOption[][] is confusing on which option is 0 and which option is 1, so this could be refactored to be better
+function generateInteraction(options?: SelectOption[][]) {
+    if (!options) throw new Error(`Improperly configured ${ADD_ROLE_2_GROUP} menu, options not defined`);
+    return respondWithInteractiveComponent('Select a role and select a role group to add the role to', [
+        createActionRowComponent([makeRoleMenu(options[0])]),
+        createActionRowComponent([makeGroupMenu(options[1])]),
+    ]);
+}
+
+function makeRoleMenu(options: SelectOption[]): MenuComponent {
     return createMenuComponent({
-        custom_id: AddRole2GroupMenuIds.roleMenu,
+        custom_id: AddRole2GroupProperties.roleMenu,
         placeholder: 'Select role configuration to be added to a role group',
         options,
     });
 }
 
-export function makeAddRoleToGroupMenu2(options: SelectOption[]): MenuComponent {
+function makeGroupMenu(options: SelectOption[]): MenuComponent {
     return createMenuComponent({
-        custom_id: AddRole2GroupMenuIds.groupMenu,
+        custom_id: AddRole2GroupProperties.groupMenu,
         placeholder: 'Select role group to receive the above role configuration',
         options,
     });
 }
 
-export enum AddRole2GroupMenuIds {
+export enum AddRole2GroupProperties {
     roleMenu = 'add-role-to-group_select-role',
     groupMenu = 'add-role-to-group_select-group',
 }
 
-export function addRole2GroupKey(interactionId: string) {
-    return `addRole2Group:${interactionId}`;
-}
-
-export type AddRole2GroupMenuIdsToData = {
-    [k in AddRole2GroupMenuIds]: string;
+export type AddRole2GroupPropertiesToData = {
+    [k in AddRole2GroupProperties]: string;
 };
 
-export async function cacheUserSelection(interactionId: string, value: AddRole2GroupMenuIdsToData) {
-    return await redisClient.setEx(addRole2GroupKey(interactionId), 60 * 30, JSON.stringify(value));
+function isSelectionComplete(value: AddRole2GroupPropertiesToData) {
+    return value[AddRole2GroupProperties.roleMenu] && value[AddRole2GroupProperties.groupMenu];
 }
 
-async function getCachedSelection(interactionId: string) {
-    return await redisClient.get(addRole2GroupKey(interactionId));
-}
-
-function isSelectionComplete(value: AddRole2GroupMenuIdsToData) {
-    return value[AddRole2GroupMenuIds.roleMenu] && value[AddRole2GroupMenuIds.groupMenu];
-}
-
-export async function handleAddRoleToGroup(req: Request, res: Response) {
+async function handleAddRoleToGroup(req: Request, res: Response, cache?: AddRole2GroupPropertiesToData) {
+    if (!cache) throw new Error(`This interaction requires cache to work`);
     const { body } = req;
     const { data } = body;
     const interactionId: string = body.message.interaction.id;
 
-    // TODO: refactor this function has similar contents to handleCreateFFlogsRole()
-    const cachedValue: string | null = await getCachedSelection(interactionId);
-    if (!cachedValue) {
-        return res.send({
-            type: InteractionResponseType.UPDATE_MESSAGE,
-            data: {
-                content: 'This component has timed out, please run the command again',
-                components: [],
-            },
-        });
-    }
-    const cachedObject: AddRole2GroupMenuIdsToData = JSON.parse(cachedValue);
-    const key: AddRole2GroupMenuIds = data.custom_id;
-
-    const userSelection = {
-        ...cachedObject,
-        [key]: data.values[0],
-    };
-
-    await cacheUserSelection(interactionId, userSelection);
-
-    if (isSelectionComplete(userSelection)) {
-        await createRoleGroupWithPriority(userSelection['add-role-to-group_select-role'], userSelection['add-role-to-group_select-group']);
+    if (isSelectionComplete(cache)) {
+        await createRoleGroupWithPriority(cache[AddRole2GroupProperties.roleMenu], cache[AddRole2GroupProperties.groupMenu]);
 
         return res.send({
             type: InteractionResponseType.UPDATE_MESSAGE,

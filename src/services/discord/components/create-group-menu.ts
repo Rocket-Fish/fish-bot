@@ -1,69 +1,69 @@
 import { Request, Response } from 'express';
-import { SelectOption, MenuComponent, createMenuComponent, InteractiveComponent, createActionRowComponent } from '.';
-import redisClient from '../../redis-client';
+import { createMenuComponent, InteractiveComponent, createActionRowComponent } from '.';
 import { InteractionResponseType } from 'discord-interactions';
 import { createGroup } from '../../../models/Group';
 import { respondWithAcknowledgement, respondWithInteractiveComponent } from '../respondToInteraction';
 
-export const CREATE_GROUP_MENU = 'CREATE_GROUP_MENU';
-export const createGroupMenu = new InteractiveComponent<CreateGroupMenuPropertiesToData>(
-    CREATE_GROUP_MENU,
-    generateInteraction,
-    handleCreateCustomGroup
-);
+export const CREATE_GROUP = 'CreateGroup';
+export const createGroupMenu = new InteractiveComponent<CreateGroupPropertiesToData>(CREATE_GROUP, generateInteraction, handleCreateCustomGroup);
 
 function generateInteraction() {
     return respondWithInteractiveComponent('Select Options for Group', [
-        createActionRowComponent([
-            createMenuComponent({
-                custom_id: CreateGroupMenuProperties.isOrdered,
-                placeholder: 'Does ordering matter in this group?',
-                options: [
-                    {
-                        label: 'Ordered',
-                        value: `true`,
-                    },
-                    {
-                        label: 'Unordered',
-                        value: `false`,
-                    },
-                ],
-            }),
-        ]),
-        createActionRowComponent([
-            createMenuComponent({
-                custom_id: CreateGroupMenuProperties.isPublic,
-                placeholder: 'Allow or disallow non-admin users to modify themselves?',
-                options: [
-                    {
-                        label: 'Public',
-                        value: `true`,
-                    },
-                    {
-                        label: 'Private',
-                        value: `false`,
-                    },
-                ],
-            }),
-        ]),
+        createActionRowComponent([makeOrderMenu()]),
+        createActionRowComponent([makePublicityMenu()]),
     ]);
 }
 
-export enum CreateGroupMenuProperties {
+function makeOrderMenu() {
+    return createMenuComponent({
+        custom_id: CreateGroupProperties.isOrdered,
+        placeholder: 'Does ordering matter in this group?',
+        options: [
+            {
+                label: 'Ordered',
+                value: `true`,
+            },
+            {
+                label: 'Unordered',
+                value: `false`,
+            },
+        ],
+    });
+}
+
+function makePublicityMenu() {
+    return createMenuComponent({
+        custom_id: CreateGroupProperties.isPublic,
+        placeholder: 'Allow or disallow non-admin users to modify themselves?',
+        options: [
+            {
+                label: 'Public',
+                value: `true`,
+            },
+            {
+                label: 'Private',
+                value: `false`,
+            },
+        ],
+    });
+}
+
+export enum CreateGroupProperties {
     name = 'create-group_name',
     isPublic = 'create-group_select-publicity',
     isOrdered = 'create-group_select-order',
 }
 
-export type CreateGroupMenuPropertiesToData = {
-    [k in CreateGroupMenuProperties]: string;
+export type CreateGroupPropertiesToData = {
+    [k in CreateGroupProperties]: string;
 };
 
-function isSelectionComplete(value: CreateGroupMenuPropertiesToData) {
-    return value[CreateGroupMenuProperties.isPublic] && value[CreateGroupMenuProperties.isOrdered];
+function isSelectionComplete(value: CreateGroupPropertiesToData) {
+    return value[CreateGroupProperties.isPublic] && value[CreateGroupProperties.isOrdered];
 }
 
-export async function handleCreateCustomGroup(req: Request, res: Response, cache: CreateGroupMenuPropertiesToData) {
+async function handleCreateCustomGroup(req: Request, res: Response, cache?: CreateGroupPropertiesToData) {
+    if (!cache) throw new Error(`This interaction requires cache to work`);
     const { body } = req;
     const { data } = body;
     const interactionId: string = body.message.interaction.id;
@@ -72,17 +72,17 @@ export async function handleCreateCustomGroup(req: Request, res: Response, cache
     if (isSelectionComplete(cache)) {
         await createGroup(
             guild.id,
-            cache[CreateGroupMenuProperties.name],
-            cache[CreateGroupMenuProperties.isOrdered] === 'true',
-            cache[CreateGroupMenuProperties.isPublic] === 'true'
+            cache[CreateGroupProperties.name],
+            cache[CreateGroupProperties.isOrdered] === 'true',
+            cache[CreateGroupProperties.isPublic] === 'true'
         );
 
         return res.send({
             type: InteractionResponseType.UPDATE_MESSAGE,
             data: {
-                content: `Group ${cache[CreateGroupMenuProperties.name]} created with the following properties: isOrdered=${
-                    cache[CreateGroupMenuProperties.isOrdered]
-                }; isPublic=${cache[CreateGroupMenuProperties.isPublic]}`,
+                content: `Group ${cache[CreateGroupProperties.name]} created with the following properties: isOrdered=${
+                    cache[CreateGroupProperties.isOrdered]
+                }; isPublic=${cache[CreateGroupProperties.isPublic]}`,
                 components: [],
             },
         });

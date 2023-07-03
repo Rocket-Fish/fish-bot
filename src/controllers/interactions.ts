@@ -6,7 +6,7 @@ import { handleInit, init } from '../services/discord/commands/init';
 import { handleRoleCommand, role } from '../services/discord/commands/role';
 import { handleGroupCommand, group } from '../services/discord/commands/group';
 import { handleTest, test } from '../services/discord/commands/test';
-import { handleAddRoleToGroup, makeAddRoleToGroupMenu2, makeAddRoleToGroupMenu1 } from '../services/discord/components/add-role-to-group-menu';
+import { AddRole2GroupProperties, addRole2GroupMenu } from '../services/discord/components/add-role-to-group-menu';
 import { handleDeleteRoleSelection, makeDeleteRoleConfigMenu } from '../services/discord/components/delete-role-config-menu';
 import { handleDeleteGroupSelection, makeDeleteGroupMenu } from '../services/discord/components/delete-role-group-menu';
 import { handleRefreshStatus, makeRefreshButton } from '../services/discord/components/refresh-button';
@@ -14,7 +14,7 @@ import { respondWithMessageInEmbed, Status } from '../services/discord/respondTo
 import { HTTPError } from '../services/http';
 import { makeRemoveRoleFromGroupMenu, handleRemoveRoleFromGroupMenu } from '../services/discord/components/remove-role-from-group-menu';
 import { makeZoneMenu, makeOperandMenu, makeConditionMenu, handleCreateFFlogsRole } from '../services/discord/components/create-fflogs-role';
-import { CreateGroupMenuProperties, createGroupMenu, handleCreateCustomGroup } from '../services/discord/components/create-group-menu';
+import { CreateGroupProperties, createGroupMenu } from '../services/discord/components/create-group-menu';
 
 export async function handleInteractions(req: Request, res: Response) {
     try {
@@ -65,9 +65,9 @@ export async function handleInteractions(req: Request, res: Response) {
                 case makeRefreshButton().custom_id:
                     [req, res] = await populateGuild(req, res);
                     return await handleRefreshStatus(req, res);
-                case makeAddRoleToGroupMenu2([]).custom_id:
-                case makeAddRoleToGroupMenu1([]).custom_id:
-                    return await handleAddRoleToGroup(req, res);
+                case AddRole2GroupProperties.roleMenu:
+                case AddRole2GroupProperties.groupMenu:
+                    return await addRole2GroupMenu.handler(req, res);
                 case makeRemoveRoleFromGroupMenu([]).custom_id:
                     return await handleRemoveRoleFromGroupMenu(req, res);
                 case makeZoneMenu().custom_id:
@@ -75,8 +75,8 @@ export async function handleInteractions(req: Request, res: Response) {
                 case makeConditionMenu().custom_id:
                     [req, res] = await populateGuild(req, res);
                     return await handleCreateFFlogsRole(req, res);
-                case CreateGroupMenuProperties.isPublic:
-                case CreateGroupMenuProperties.isOrdered:
+                case CreateGroupProperties.isPublic:
+                case CreateGroupProperties.isOrdered:
                     [req, res] = await populateGuild(req, res);
                     return await createGroupMenu.handler(req, res);
                 default:
