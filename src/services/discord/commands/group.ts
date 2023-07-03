@@ -19,13 +19,7 @@ import { groupCustomize, groupNameInput } from './options/role-group-name-input'
 import { role, RoleOptions } from './role';
 import { ActionNotImplemented } from './types';
 import { makeRemoveRoleFromGroupMenu } from '../components/remove-role-from-group-menu';
-import {
-    CreateGroupMenuIds,
-    CreateGroupMenuIdsToData,
-    cacheCreateGroupMenuUserSelection,
-    makeCreateGroupMenu1,
-    makeCreateGroupMenu2,
-} from '../components/create-group-menu';
+import { CreateGroupMenuProperties, createGroupMenu } from '../components/create-group-menu';
 
 export enum GroupOptions {
     create = 'create',
@@ -110,26 +104,16 @@ async function onCreate(req: Request, res: Response) {
     const customize: string | undefined = data.options[0].options?.[1]?.value;
 
     if (customize) {
-        await initializeCreateCustomGroupCache(id, name);
-        return res.send(
-            respondWithInteractiveComponent('Select Options for Group', [
-                createActionRowComponent([makeCreateGroupMenu1()]),
-                createActionRowComponent([makeCreateGroupMenu2()]),
-            ])
-        );
+        const response = await createGroupMenu.initInteraction(undefined, id, {
+            [CreateGroupMenuProperties.name]: name,
+            [CreateGroupMenuProperties.isOrdered]: '',
+            [CreateGroupMenuProperties.isPublic]: '',
+        });
+        return res.send(response);
     } else {
         await createGroup(guild.id, name);
         return res.send(respondWithMessageInEmbed(`Role-Group Created`, `name: ${name}\nType: Private Unordered`));
     }
-}
-
-async function initializeCreateCustomGroupCache(interactionId: string, name: string) {
-    const value = {
-        [CreateGroupMenuIds.name]: name,
-        [CreateGroupMenuIds.isOrdered]: '',
-        [CreateGroupMenuIds.isPublic]: '',
-    };
-    return await cacheCreateGroupMenuUserSelection(interactionId, value);
 }
 
 async function onList(req: Request, res: Response) {

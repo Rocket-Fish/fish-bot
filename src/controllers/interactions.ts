@@ -14,7 +14,7 @@ import { respondWithMessageInEmbed, Status } from '../services/discord/respondTo
 import { HTTPError } from '../services/http';
 import { makeRemoveRoleFromGroupMenu, handleRemoveRoleFromGroupMenu } from '../services/discord/components/remove-role-from-group-menu';
 import { makeZoneMenu, makeOperandMenu, makeConditionMenu, handleCreateFFlogsRole } from '../services/discord/components/create-fflogs-role';
-import { handleCreateCustomGroup, makeCreateGroupMenu1, makeCreateGroupMenu2 } from '../services/discord/components/create-group-menu';
+import { CreateGroupMenuProperties, createGroupMenu, handleCreateCustomGroup } from '../services/discord/components/create-group-menu';
 
 export async function handleInteractions(req: Request, res: Response) {
     try {
@@ -75,10 +75,10 @@ export async function handleInteractions(req: Request, res: Response) {
                 case makeConditionMenu().custom_id:
                     [req, res] = await populateGuild(req, res);
                     return await handleCreateFFlogsRole(req, res);
-                case makeCreateGroupMenu1().custom_id:
-                case makeCreateGroupMenu2().custom_id:
+                case CreateGroupMenuProperties.isPublic:
+                case CreateGroupMenuProperties.isOrdered:
                     [req, res] = await populateGuild(req, res);
-                    return await handleCreateCustomGroup(req, res);
+                    return await createGroupMenu.handler(req, res);
                 default:
                     return res.send({
                         type: InteractionResponseType.UPDATE_MESSAGE,
@@ -91,7 +91,7 @@ export async function handleInteractions(req: Request, res: Response) {
         }
     } catch (err) {
         if (err instanceof HTTPError) res.send(respondWithMessageInEmbed(err.name, `${err.message}\n\n${JSON.stringify(err.data)}`, Status.failure));
-        else if (err instanceof Error) res.send(respondWithMessageInEmbed(err.name, `${err.message}`, Status.failure));
+        else if (err instanceof Error) res.send(respondWithMessageInEmbed(err.name || 'Error', `${err.message}`, Status.failure));
         else res.send(respondWithMessageInEmbed('Failure', 'An unknown error has occured', Status.failure));
     }
 }
