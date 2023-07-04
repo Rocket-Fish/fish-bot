@@ -7,8 +7,9 @@ import { sleep } from '../../../utils/sleep';
 import { performRoleUpdate } from '../../core/perform-role-update';
 import { getGuildMembers } from '../guilds';
 import { GuildMember } from '../types';
-import { makeRefreshButton } from './refresh-button';
+import { RefreshButtonTypes, makeRefreshButton } from './refresh-button';
 import performFollowup from '../performFollowup';
+import { updateForEachMemberCache } from '../commands/for-each-member-in-server';
 
 export function makeForEachMemberInServerUpdateRolesMenu(options: SelectOption[]): MenuComponent {
     return createMenuComponent({
@@ -38,14 +39,17 @@ export async function handleForEachMemberInServerUpdateRolesSelection(req: Reque
         await sleep(500);
     }
 
-    performRoleUpdate(guild, members, groupsSelected);
+    performRoleUpdate(guild, members, groupsSelected, updateForEachMemberCache(guild.id));
 
     performFollowup(
         interactionToken,
-        respondWithInteractiveComponent('Updating roles for all members', [createActionRowComponent([makeRefreshButton()])], {
-            ephemeral: false,
-            interactionResponseType: InteractionResponseType.UPDATE_MESSAGE,
-        }).data
+        respondWithInteractiveComponent(
+            'Updating roles for all members',
+            [createActionRowComponent([makeRefreshButton(RefreshButtonTypes.refreshForEachMember)])],
+            {
+                ephemeral: false,
+            }
+        ).data
     );
     res.send({
         type: InteractionResponseType.UPDATE_MESSAGE,

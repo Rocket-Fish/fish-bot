@@ -1,6 +1,5 @@
 import { Guild } from '../../models/Guild';
 import { RoleWithGroup, getRolesWithGroup, RuleType, FFlogsRule, RuleOperand, RuleCondition } from '../../models/Role';
-import { updateCache } from '../discord/commands/for-each-member-in-server';
 import { giveGuildMemberRole, removeRoleFromGuildMember } from '../discord/guilds';
 import { GuildMember } from '../discord/types';
 import { getCharacterZoneRankings } from '../fflogs/get-character-data';
@@ -8,22 +7,25 @@ import { CharacterNamingError, extractCharacter } from './extract-character';
 
 export type RoleUpdateStatus = {
     progress: string;
+    roleChanges: string[];
     problems: string[];
     isComplete: boolean;
 };
 
-export async function performRoleUpdate(guild: Guild, members: GuildMember[], groupsToProcess: string[]) {
+export async function performRoleUpdate(guild: Guild, members: GuildMember[], groupsToProcess: string[], updateCache: (value: any) => Promise<any>) {
     try {
         const roleList: RoleWithGroup[] = await getRolesWithGroup(guild.id, groupsToProcess);
-        const status: RoleUpdateStatus = { progress: `0/${members.length}`, problems: [], isComplete: false };
-        await updateCache(guild.id, status);
+        const status: RoleUpdateStatus = { progress: `0/${members.length}`, problems: [], roleChanges: [], isComplete: false };
+        await updateCache(status);
         let counter = 0;
 
         for (const member of members) {
             counter++;
             try {
                 if (member.user.bot) throw new Error('Member is a bot');
-                status.problems.push(...(await handleRoles(guild, roleList, member)));
+                const { problems, changes } = await handleRoles(guild, roleList, member);
+                status.problems.push(...problems);
+                status.roleChanges.push(...changes);
             } catch (e) {
                 // catch member errors
                 // catch role errors
@@ -37,10 +39,10 @@ export async function performRoleUpdate(guild: Guild, members: GuildMember[], gr
             }
 
             status.progress = `${counter}/${members.length}`;
-            await updateCache(guild.id, status);
+            await updateCache(status);
         }
         status.isComplete = true;
-        await updateCache(guild.id, status);
+        await updateCache(status);
     } catch (e) {
         // catch system errors
         console.log(e);
@@ -59,8 +61,14 @@ function isCurrentGroupCompleted(groupCompletionStatus: GroupCompletionStatus, r
     return role.group_id && role.group_id in groupCompletionStatus && groupCompletionStatus[role.group_id];
 }
 
-async function handleRoles(guild: Guild, roleList: RoleWithGroup[], member: GuildMember): Promise<string[]> {
+type HandleRolesResponse = {
+    problems: string[];
+    changes: string[];
+};
+
+async function handleRoles(guild: Guild, roleList: RoleWithGroup[], member: GuildMember): Promise<HandleRolesResponse> {
     const problems = [];
+    const changes = [];
     const groupCompletionStatus: GroupCompletionStatus = {};
     for (const role of roleList) {
         try {
@@ -68,6 +76,7 @@ async function handleRoles(guild: Guild, roleList: RoleWithGroup[], member: Guil
                 // if the user has any remaining roles, then remove them
                 if (doesMemberHaveRole(member, role)) {
                     await removeRoleFromGuildMember(guild.discord_guild_id, member.user.id, role.discord_role_id);
+                    changes.push(`Removed <@&${role.discord_role_id}> from <@${member.user.id}>`);
                 }
                 continue;
             }
@@ -77,8 +86,9 @@ async function handleRoles(guild: Guild, roleList: RoleWithGroup[], member: Guil
                     // if user doesn't already have this role, give it to them
                     if (!doesMemberHaveRole(member, role)) {
                         await giveGuildMemberRole(guild.discord_guild_id, member.user.id, role.discord_role_id);
+                        changes.push(`Given <@&${role.discord_role_id}> to <@${member.user.id}>`);
                     }
-                    if (role.group_id) {
+                    if (role.is_ordered && role.group_id) {
                         groupCompletionStatus[role.group_id] = true;
                     }
                     break;
@@ -86,8 +96,9 @@ async function handleRoles(guild: Guild, roleList: RoleWithGroup[], member: Guil
                     // if user has this role, then remove it
                     if (doesMemberHaveRole(member, role)) {
                         await removeRoleFromGuildMember(guild.discord_guild_id, member.user.id, role.discord_role_id);
+                        changes.push(`Removed <@&${role.discord_role_id}> from <@${member.user.id}>`);
                     }
-                    if (role.group_id) {
+                    if (role.is_ordered && role.group_id) {
                         groupCompletionStatus[role.group_id] = true;
                     }
                     break;
@@ -97,13 +108,16 @@ async function handleRoles(guild: Guild, roleList: RoleWithGroup[], member: Guil
                     if (isRuleSatisfied) {
                         if (!doesMemberHaveRole(member, role)) {
                             await giveGuildMemberRole(guild.discord_guild_id, member.user.id, role.discord_role_id);
+                            changes.push(`Given <@&${role.discord_role_id}> to <@${member.user.id}>`);
                         }
-                        if (role.group_id) {
+                        if (role.is_ordered && role.group_id) {
                             groupCompletionStatus[role.group_id] = true;
                         }
-                    } else if (doesMemberHaveRole(member, role)) {
+                    } else if (role.is_ordered && doesMemberHaveRole(member, role)) {
+                        // TODO: maybe need to rethink this part, currently catering to the case if a single role is given to multiple encounters (like the ultimates), thats an unordered group scenario
                         // remove role if the user no longer satisfy conditions for the role
                         await removeRoleFromGuildMember(guild.discord_guild_id, member.user.id, role.discord_role_id);
+                        changes.push(`Removed <@&${role.discord_role_id}> from <@${member.user.id}>`);
                     }
                     break;
                 default:
@@ -126,7 +140,7 @@ async function handleRoles(guild: Guild, roleList: RoleWithGroup[], member: Guil
             }
         }
     }
-    return problems;
+    return { problems, changes };
 }
 
 async function isFflogsRuleSatisfied(guild: Guild, rule: FFlogsRule, role: Exclude<RoleWithGroup, 'rule'>, member: GuildMember): Promise<boolean> {

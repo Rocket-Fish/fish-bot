@@ -58,8 +58,8 @@ export function forEachMemberKey(guildId: string) {
     return `4EachMemberIn:${guildId}`;
 }
 
-export async function updateCache(guildId: string, value: any) {
-    return await redisClient.setEx(forEachMemberKey(guildId), 60 * 60, JSON.stringify(value));
+export function updateForEachMemberCache(guildId: string) {
+    return (value: any) => redisClient.setEx(forEachMemberKey(guildId), 60 * 60, JSON.stringify(value));
 }
 
 async function onUpdateRoles(req: Request, res: Response) {

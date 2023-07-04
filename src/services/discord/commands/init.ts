@@ -7,6 +7,7 @@ import { respondWithMessageInEmbed, Status } from '../respondToInteraction';
 import { role } from './role';
 import { forEachMember } from './for-each-member-in-server';
 import { group } from './group';
+import { gimmeRoles } from './gimme-roles';
 
 export const init: ApplicationCommand = {
     name: 'initialize',
@@ -17,7 +18,7 @@ export const init: ApplicationCommand = {
 };
 
 async function migrateDefaultCommands(guildId: string) {
-    return migrateGuildCommands(guildId, [test, role, group, forEachMember]);
+    return migrateGuildCommands(guildId, [test, role, group, forEachMember, gimmeRoles]);
 }
 
 export async function handleInit(req: Request, res: Response) {
