@@ -84,6 +84,8 @@ async function onUpdateRoles(req: Request, res: Response) {
         }
 
         performRoleUpdate(guild, members);
-        res.send(respondWithInteractiveComponent('Updating roles for all members', [createActionRowComponent([makeRefreshButton()])], false));
+        res.send(
+            respondWithInteractiveComponent('Updating roles for all members', [createActionRowComponent([makeRefreshButton()])], { ephemeral: false })
+        );
     }
 }

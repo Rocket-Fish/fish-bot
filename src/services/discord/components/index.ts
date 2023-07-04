@@ -96,12 +96,12 @@ export function createActionRowComponent(components: [MenuComponent] | ButtonCom
 export class CachedInteractiveComponent<T extends object & (keyof T extends string ? {} : 'T in Interactive Component must have string keys')> {
     protected identifier: string;
     protected generateInteraction: (options?: SelectOption[][]) => InteractionResponse;
-    protected handleInteraction: (req: Request, res: Response, cache: T) => any;
+    protected handleInteraction: (req: Request, res: Response, cache: T, prevCache: T) => any;
 
     constructor(
         identifier: string,
         generateInteraction: (options?: SelectOption[][]) => InteractionResponse,
-        handleInteraction: (req: Request, res: Response, cache: T) => any
+        handleInteraction: (req: Request, res: Response, cache: T, prevCache: T) => any
     ) {
         this.identifier = identifier;
         this.generateInteraction = generateInteraction;
@@ -142,11 +142,11 @@ export class CachedInteractiveComponent<T extends object & (keyof T extends stri
 
         const updatedCache = {
             ...cache,
-            [key]: data.values[0],
+            [key]: data?.values?.[0] || 'clicked',
         };
 
         this.setCache(interactionId, updatedCache);
 
-        return await this.handleInteraction(req, res, updatedCache);
+        return await this.handleInteraction(req, res, updatedCache, cache);
     }
 }

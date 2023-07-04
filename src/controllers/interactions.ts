@@ -14,7 +14,7 @@ import { respondWithMessageInEmbed, Status } from '../services/discord/respondTo
 import { HTTPError } from '../services/http';
 import { makeRemoveRoleFromGroupMenu, handleRemoveRoleFromGroupMenu } from '../services/discord/components/remove-role-from-group-menu';
 import { CreateFFlogsRoleProperties, createFflogsRole } from '../services/discord/components/create-fflogs-role';
-import { CreateGroupProperties, createGroupMenu } from '../services/discord/components/create-group-menu';
+import { CreateGroupProperties, EditGroupProperties, createGroupMenu, editGroupMenu } from '../services/discord/components/group-menu';
 
 export async function handleInteractions(req: Request, res: Response) {
     try {
@@ -79,6 +79,13 @@ export async function handleInteractions(req: Request, res: Response) {
                 case CreateGroupProperties.isOrdered:
                     [req, res] = await populateGuild(req, res);
                     return await createGroupMenu.handler(req, res);
+                case EditGroupProperties.id:
+                case EditGroupProperties.isPublic:
+                case EditGroupProperties.isOrdered:
+                case EditGroupProperties.saveButton:
+                case EditGroupProperties.cancelButton:
+                    [req, res] = await populateGuild(req, res);
+                    return await editGroupMenu.handler(req, res);
                 default:
                     return res.send({
                         type: InteractionResponseType.UPDATE_MESSAGE,

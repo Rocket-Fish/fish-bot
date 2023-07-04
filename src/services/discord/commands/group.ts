@@ -13,11 +13,12 @@ import { groupCustomize, groupNameInput } from './options/role-group-name-input'
 import { role, RoleOptions } from './role';
 import { ActionNotImplemented } from './types';
 import { makeRemoveRoleFromGroupMenu } from '../components/remove-role-from-group-menu';
-import { CreateGroupProperties, createGroupMenu } from '../components/create-group-menu';
+import { CreateGroupProperties, EditGroupProperties, createGroupMenu, editGroupMenu } from '../components/group-menu';
 
 export enum GroupOptions {
     create = 'create',
     list = 'list',
+    edit = 'edit',
     delete = 'delete',
     deleteAll = 'delete-all',
     addRole = 'add-role',
@@ -39,6 +40,11 @@ export const group: ApplicationCommand = {
         {
             name: GroupOptions.list,
             description: 'Lists all role groups',
+            type: ApplicationCommandOptionTypes.SUB_COMMAND,
+        },
+        {
+            name: GroupOptions.edit,
+            description: 'Edit a role group',
             type: ApplicationCommandOptionTypes.SUB_COMMAND,
         },
         {
@@ -74,6 +80,8 @@ export async function handleGroupCommand(req: Request, res: Response) {
             return onCreate(req, res);
         case GroupOptions.list:
             return onList(req, res);
+        case GroupOptions.edit:
+            return onEdit(req, res);
         case GroupOptions.delete:
             return onDelete(req, res);
         case GroupOptions.deleteAll:
@@ -120,6 +128,34 @@ async function onList(req: Request, res: Response) {
     } else {
         const StringifiedGroupList = groups.map((r) => r.name).join('\n');
         return res.send(respondWithMessageInEmbed(`Found ${groups.length} Role Groups`, StringifiedGroupList));
+    }
+}
+
+async function onEdit(req: Request, res: Response) {
+    const { id: interactionId } = req.body;
+    const guild: Guild = res.locals.guild;
+    const groupList = await getGroups(guild.id);
+
+    if (groupList.length === 0) {
+        return res.send(respondWithMessageInEmbed('Nothing to Edit', 'You have not set up any role groups', Status.warning));
+    } else {
+        const menuOptionsList: SelectOption[] = groupList.map((rg) => ({
+            label: rg.name,
+            value: rg.id,
+        }));
+
+        const response = await editGroupMenu.initInteraction(
+            interactionId,
+            {
+                [EditGroupProperties.id]: '',
+                [EditGroupProperties.isOrdered]: '',
+                [EditGroupProperties.isPublic]: '',
+                [EditGroupProperties.saveButton]: '',
+                [EditGroupProperties.cancelButton]: '',
+            },
+            [menuOptionsList]
+        );
+        return res.send(response);
     }
 }
 
