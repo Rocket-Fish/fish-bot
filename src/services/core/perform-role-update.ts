@@ -113,8 +113,8 @@ async function handleRoles(guild: Guild, roleList: RoleWithGroup[], member: Guil
                         if (role.is_ordered && role.group_id) {
                             groupCompletionStatus[role.group_id] = true;
                         }
-                    } else if (doesMemberHaveRole(member, role)) {
-                        // TODO: maybe need to rethink this part, in an unordered role, what if a single role is given to multiple encounters (like the ultimates)
+                    } else if (role.is_ordered && doesMemberHaveRole(member, role)) {
+                        // TODO: maybe need to rethink this part, currently catering to the case if a single role is given to multiple encounters (like the ultimates), thats an unordered group scenario
                         // remove role if the user no longer satisfy conditions for the role
                         await removeRoleFromGuildMember(guild.discord_guild_id, member.user.id, role.discord_role_id);
                         changes.push(`Removed <@&${role.discord_role_id}> from <@${member.user.id}>`);

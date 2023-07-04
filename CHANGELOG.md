@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   `convertRoleListToSelectOptions` now has a description limit of 100 characters
 -   Command `/for-each-member-in-server update-roles` operates off of groups now
 -   Command `/group create name: string expressConfiguration: boolean` can optionally used to specify group's publicity and order when a group is created
+-   FFlogs roles in unordered groups will no longer remove roles that a person is not qualified for, only in ordered groups will a unqualifying fflogs role be removed
 
 ### Fixed
 
