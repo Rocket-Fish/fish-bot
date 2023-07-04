@@ -15,6 +15,10 @@ import { HTTPError } from '../services/http';
 import { makeRemoveRoleFromGroupMenu, handleRemoveRoleFromGroupMenu } from '../services/discord/components/remove-role-from-group-menu';
 import { CreateFFlogsRoleProperties, createFflogsRole } from '../services/discord/components/create-fflogs-role';
 import { CreateGroupProperties, EditGroupProperties, createGroupMenu, editGroupMenu } from '../services/discord/components/group-menu';
+import {
+    handleForEachMemberInServerUpdateRolesSelection,
+    makeForEachMemberInServerUpdateRolesMenu,
+} from '../services/discord/components/for-each-member-in-server-update-roles-menu';
 
 export async function handleInteractions(req: Request, res: Response) {
     try {
@@ -86,6 +90,9 @@ export async function handleInteractions(req: Request, res: Response) {
                 case EditGroupProperties.cancelButton:
                     [req, res] = await populateGuild(req, res);
                     return await editGroupMenu.handler(req, res);
+                case makeForEachMemberInServerUpdateRolesMenu([]).custom_id:
+                    [req, res] = await populateGuild(req, res);
+                    return await handleForEachMemberInServerUpdateRolesSelection(req, res);
                 default:
                     return res.send({
                         type: InteractionResponseType.UPDATE_MESSAGE,

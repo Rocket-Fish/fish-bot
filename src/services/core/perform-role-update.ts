@@ -12,9 +12,9 @@ export type RoleUpdateStatus = {
     isComplete: boolean;
 };
 
-export async function performRoleUpdate(guild: Guild, members: GuildMember[]) {
+export async function performRoleUpdate(guild: Guild, members: GuildMember[], groupsToProcess: string[]) {
     try {
-        const roleList: RoleWithGroup[] = await getRolesWithGroup(guild.id);
+        const roleList: RoleWithGroup[] = await getRolesWithGroup(guild.id, groupsToProcess);
         const status: RoleUpdateStatus = { progress: `0/${members.length}`, problems: [], isComplete: false };
         await updateCache(guild.id, status);
         let counter = 0;

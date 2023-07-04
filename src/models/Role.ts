@@ -149,14 +149,14 @@ export type RoleWithGroup = Pick<Role, 'guild_id' | 'discord_role_id' | 'rule'> 
     };
 
 type Result = { rows: RoleWithGroup[] };
-export function getRolesWithGroup(forGuild: string): Promise<RoleWithGroup[]> {
+export function getRolesWithGroup(forGuild: string, groupIds?: string[]): Promise<RoleWithGroup[]> {
     const raw = `SELECT rgwp.group_id, rgwp.role_id, r.guild_id, r.discord_role_id, r.rule, rgwp.priority, g.name
     FROM ((${roles} r LEFT JOIN ${roleGroupWithPriority} rgwp ON r.id = rgwp.role_id) LEFT JOIN ${groups} g ON rgwp.group_id = g.id) 
-    WHERE r.guild_id=?
+    WHERE r.guild_id=? ${groupIds ? `AND rgwp.group_id=ANY(?)` : ''}
     ORDER BY rgwp.group_id DESC, rgwp.priority`;
 
     return new Promise((resolve, reject) => {
-        db.raw<Result>(raw, [forGuild])
+        db.raw<Result>(raw, [forGuild, ...(groupIds ? [groupIds] : [])])
             .then((result) => resolve(result.rows))
             .catch((e) => reject(e));
     });
