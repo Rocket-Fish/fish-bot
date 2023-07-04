@@ -67,7 +67,12 @@ function isSelectionComplete(value: CreateGroupPropertiesToData) {
     return value[CreateGroupProperties.isPublic] && value[CreateGroupProperties.isOrdered];
 }
 
-async function handleCreateCustomGroup(req: Request, res: Response, cache: CreateGroupPropertiesToData) {
+async function handleCreateCustomGroup(
+    t: CachedInteractiveComponent<CreateGroupPropertiesToData>,
+    req: Request,
+    res: Response,
+    cache: CreateGroupPropertiesToData
+) {
     const guild = res.locals.guild;
 
     if (isSelectionComplete(cache)) {
@@ -161,13 +166,26 @@ export type EditGroupPropertiesToData = {
     [k in EditGroupProperties]: string;
 };
 
-async function handleEditCustomGroup(req: Request, res: Response, cache: EditGroupPropertiesToData, prevCache: EditGroupPropertiesToData) {
+async function handleEditCustomGroup(
+    t: CachedInteractiveComponent<EditGroupPropertiesToData>,
+    req: Request,
+    res: Response,
+    cache: EditGroupPropertiesToData,
+    prevCache: EditGroupPropertiesToData
+) {
+    const { body } = req;
+    const interactionId: string = body.message.interaction.id;
     const group = await getGroup(cache[EditGroupProperties.id]);
     if (!group) {
         // this should almost be impossible to trigger, if this triggers then something is wrong
         throw new Error('Improperly setup handle Edit custom group, need to select group first before handling anything else');
     }
     if (prevCache[EditGroupProperties.id] !== cache[EditGroupProperties.id]) {
+        await t.setCache(interactionId, {
+            ...cache,
+            [EditGroupProperties.isOrdered]: String(group.is_ordered),
+            [EditGroupProperties.isPublic]: String(group.is_public),
+        });
         return res.send(generateFollowupEditInteraction(group.name, group));
     }
     if (prevCache[EditGroupProperties.saveButton] !== cache[EditGroupProperties.saveButton]) {

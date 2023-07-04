@@ -106,7 +106,12 @@ function isInformationGatheringComplete(value: CreateFFlogsRolePropertiesToData)
     );
 }
 
-async function handleCreateFFlogsRole(req: Request, res: Response, cache: CreateFFlogsRolePropertiesToData) {
+async function handleCreateFFlogsRole(
+    t: CachedInteractiveComponent<CreateFFlogsRolePropertiesToData>,
+    req: Request,
+    res: Response,
+    cache: CreateFFlogsRolePropertiesToData
+) {
     const guild: Guild = res.locals.guild;
 
     if (isInformationGatheringComplete(cache)) {

@@ -96,23 +96,23 @@ export function createActionRowComponent(components: [MenuComponent] | ButtonCom
 export class CachedInteractiveComponent<T extends object & (keyof T extends string ? {} : 'T in Interactive Component must have string keys')> {
     protected identifier: string;
     protected generateInteraction: (options?: SelectOption[][]) => InteractionResponse;
-    protected handleInteraction: (req: Request, res: Response, cache: T, prevCache: T) => any;
+    protected handleInteraction: (t: CachedInteractiveComponent<T>, req: Request, res: Response, cache: T, prevCache: T) => any;
 
     constructor(
         identifier: string,
         generateInteraction: (options?: SelectOption[][]) => InteractionResponse,
-        handleInteraction: (req: Request, res: Response, cache: T, prevCache: T) => any
+        handleInteraction: (t: CachedInteractiveComponent<T>, req: Request, res: Response, cache: T, prevCache: T) => any
     ) {
         this.identifier = identifier;
         this.generateInteraction = generateInteraction;
         this.handleInteraction = handleInteraction;
     }
 
-    protected async setCache(interactionId: string, cache: T) {
+    public async setCache(interactionId: string, cache: T) {
         return await redisClient.setEx(`${this.identifier}:${interactionId}`, 60 * 30, JSON.stringify(cache));
     }
 
-    protected async getCache(interactionId: string) {
+    public async getCache(interactionId: string) {
         return await redisClient.get(`${this.identifier}:${interactionId}`);
     }
 
@@ -147,6 +147,6 @@ export class CachedInteractiveComponent<T extends object & (keyof T extends stri
 
         this.setCache(interactionId, updatedCache);
 
-        return await this.handleInteraction(req, res, updatedCache, cache);
+        return await this.handleInteraction(this, req, res, updatedCache, cache);
     }
 }

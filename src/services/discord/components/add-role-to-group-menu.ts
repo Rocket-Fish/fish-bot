@@ -50,7 +50,12 @@ function isSelectionComplete(value: AddRole2GroupPropertiesToData) {
     return value[AddRole2GroupProperties.roleMenu] && value[AddRole2GroupProperties.groupMenu];
 }
 
-async function handleAddRoleToGroup(req: Request, res: Response, cache: AddRole2GroupPropertiesToData) {
+async function handleAddRoleToGroup(
+    t: CachedInteractiveComponent<AddRole2GroupPropertiesToData>,
+    req: Request,
+    res: Response,
+    cache: AddRole2GroupPropertiesToData
+) {
     if (isSelectionComplete(cache)) {
         await createRoleGroupWithPriority(cache[AddRole2GroupProperties.roleMenu], cache[AddRole2GroupProperties.groupMenu]);
 
