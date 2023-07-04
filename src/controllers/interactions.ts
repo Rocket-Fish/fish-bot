@@ -6,14 +6,19 @@ import { handleInit, init } from '../services/discord/commands/init';
 import { handleRoleCommand, role } from '../services/discord/commands/role';
 import { handleGroupCommand, group } from '../services/discord/commands/group';
 import { handleTest, test } from '../services/discord/commands/test';
-import { handleAddRoleToGroup, makeAddRoleToGroupMenu2, makeAddRoleToGroupMenu1 } from '../services/discord/components/add-role-to-group-menu';
+import { AddRole2GroupProperties, addRole2GroupMenu } from '../services/discord/components/add-role-to-group-menu';
 import { handleDeleteRoleSelection, makeDeleteRoleConfigMenu } from '../services/discord/components/delete-role-config-menu';
 import { handleDeleteGroupSelection, makeDeleteGroupMenu } from '../services/discord/components/delete-role-group-menu';
 import { handleRefreshStatus, makeRefreshButton } from '../services/discord/components/refresh-button';
 import { respondWithMessageInEmbed, Status } from '../services/discord/respondToInteraction';
 import { HTTPError } from '../services/http';
 import { makeRemoveRoleFromGroupMenu, handleRemoveRoleFromGroupMenu } from '../services/discord/components/remove-role-from-group-menu';
-import { makeZoneMenu, makeOperandMenu, makeConditionMenu, handleCreateFFlogsRole } from '../services/discord/components/create-fflogs-role';
+import { CreateFFlogsRoleProperties, createFflogsRole } from '../services/discord/components/create-fflogs-role';
+import { CreateGroupProperties, EditGroupProperties, createGroupMenu, editGroupMenu } from '../services/discord/components/group-menu';
+import {
+    handleForEachMemberInServerUpdateRolesSelection,
+    makeForEachMemberInServerUpdateRolesMenu,
+} from '../services/discord/components/for-each-member-in-server-update-roles-menu';
 
 export async function handleInteractions(req: Request, res: Response) {
     try {
@@ -64,16 +69,30 @@ export async function handleInteractions(req: Request, res: Response) {
                 case makeRefreshButton().custom_id:
                     [req, res] = await populateGuild(req, res);
                     return await handleRefreshStatus(req, res);
-                case makeAddRoleToGroupMenu2([]).custom_id:
-                case makeAddRoleToGroupMenu1([]).custom_id:
-                    return await handleAddRoleToGroup(req, res);
+                case AddRole2GroupProperties.roleMenu:
+                case AddRole2GroupProperties.groupMenu:
+                    return await addRole2GroupMenu.handler(req, res);
                 case makeRemoveRoleFromGroupMenu([]).custom_id:
                     return await handleRemoveRoleFromGroupMenu(req, res);
-                case makeZoneMenu().custom_id:
-                case makeOperandMenu().custom_id:
-                case makeConditionMenu().custom_id:
+                case CreateFFlogsRoleProperties.selectCondition:
+                case CreateFFlogsRoleProperties.selectOperand:
+                case CreateFFlogsRoleProperties.selectZone:
                     [req, res] = await populateGuild(req, res);
-                    return await handleCreateFFlogsRole(req, res);
+                    return await createFflogsRole.handler(req, res);
+                case CreateGroupProperties.isPublic:
+                case CreateGroupProperties.isOrdered:
+                    [req, res] = await populateGuild(req, res);
+                    return await createGroupMenu.handler(req, res);
+                case EditGroupProperties.id:
+                case EditGroupProperties.isPublic:
+                case EditGroupProperties.isOrdered:
+                case EditGroupProperties.saveButton:
+                case EditGroupProperties.cancelButton:
+                    [req, res] = await populateGuild(req, res);
+                    return await editGroupMenu.handler(req, res);
+                case makeForEachMemberInServerUpdateRolesMenu([]).custom_id:
+                    [req, res] = await populateGuild(req, res);
+                    return await handleForEachMemberInServerUpdateRolesSelection(req, res);
                 default:
                     return res.send({
                         type: InteractionResponseType.UPDATE_MESSAGE,
@@ -86,7 +105,7 @@ export async function handleInteractions(req: Request, res: Response) {
         }
     } catch (err) {
         if (err instanceof HTTPError) res.send(respondWithMessageInEmbed(err.name, `${err.message}\n\n${JSON.stringify(err.data)}`, Status.failure));
-        else if (err instanceof Error) res.send(respondWithMessageInEmbed(err.name, `${err.message}`, Status.failure));
+        else if (err instanceof Error) res.send(respondWithMessageInEmbed(err.name || 'Error', `${err.message}`, Status.failure));
         else res.send(respondWithMessageInEmbed('Failure', 'An unknown error has occured', Status.failure));
     }
 }

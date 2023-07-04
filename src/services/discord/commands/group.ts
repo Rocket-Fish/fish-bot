@@ -1,28 +1,24 @@
 import { Request, Response } from 'express';
 import { Guild } from '../../../models/Guild';
-import { getGroupedRoles, getGrouplessRoles, getRoles } from '../../../models/Role';
+import { getGroupedRoles, getGrouplessRoles } from '../../../models/Role';
 import { createGroup, deleteAllGroupsForGuild, getGroups } from '../../../models/Group';
 import { convertGroupListToSelectOptions, convertRoleListToSelectOptions } from '../../../utils/convert';
 import { SelectOption, createActionRowComponent } from '../components';
-import {
-    AddRole2GroupMenuIds,
-    AddRole2GroupMenuIdsToData,
-    cacheUserSelection,
-    makeAddRoleToGroupMenu1,
-    makeAddRoleToGroupMenu2,
-} from '../components/add-role-to-group-menu';
+import { AddRole2GroupProperties, addRole2GroupMenu } from '../components/add-role-to-group-menu';
 import { makeDeleteGroupMenu } from '../components/delete-role-group-menu';
 import { getGuildRoles } from '../guilds';
 import { respondWithInteractiveComponent, respondWithMessageInEmbed, Status } from '../respondToInteraction';
 import { ApplicationCommand, ApplicationCommandOptionTypes, ApplicationCommandTypes } from '../types';
-import { groupNameInput } from './options/role-group-name-input';
+import { groupCustomize, groupNameInput } from './options/role-group-name-input';
 import { role, RoleOptions } from './role';
 import { ActionNotImplemented } from './types';
 import { makeRemoveRoleFromGroupMenu } from '../components/remove-role-from-group-menu';
+import { CreateGroupProperties, EditGroupProperties, createGroupMenu, editGroupMenu } from '../components/group-menu';
 
 export enum GroupOptions {
     create = 'create',
     list = 'list',
+    edit = 'edit',
     delete = 'delete',
     deleteAll = 'delete-all',
     addRole = 'add-role',
@@ -39,11 +35,16 @@ export const group: ApplicationCommand = {
             name: GroupOptions.create,
             description: 'Create a role group',
             type: ApplicationCommandOptionTypes.SUB_COMMAND,
-            options: [groupNameInput],
+            options: [groupNameInput, groupCustomize],
         },
         {
             name: GroupOptions.list,
             description: 'Lists all role groups',
+            type: ApplicationCommandOptionTypes.SUB_COMMAND,
+        },
+        {
+            name: GroupOptions.edit,
+            description: 'Edit a role group',
             type: ApplicationCommandOptionTypes.SUB_COMMAND,
         },
         {
@@ -79,6 +80,8 @@ export async function handleGroupCommand(req: Request, res: Response) {
             return onCreate(req, res);
         case GroupOptions.list:
             return onList(req, res);
+        case GroupOptions.edit:
+            return onEdit(req, res);
         case GroupOptions.delete:
             return onDelete(req, res);
         case GroupOptions.deleteAll:
@@ -93,15 +96,26 @@ export async function handleGroupCommand(req: Request, res: Response) {
 }
 
 async function onCreate(req: Request, res: Response) {
-    const { data } = req.body;
+    const { data, id: interactionId } = req.body;
+
     const guild: Guild = res.locals.guild;
 
     let name: string = data.options[0].options[0].value;
     name = name.replaceAll(/[^a-zA-Z0-9 -]/g, '');
 
-    await createGroup(guild.id, name);
+    const customize: string | undefined = data.options[0].options?.[1]?.value;
 
-    return res.send(respondWithMessageInEmbed(`Role-Group Created`, `name: ${name}`));
+    if (customize) {
+        const response = await createGroupMenu.initInteraction(interactionId, {
+            [CreateGroupProperties.name]: name,
+            [CreateGroupProperties.isOrdered]: '',
+            [CreateGroupProperties.isPublic]: '',
+        });
+        return res.send(response);
+    } else {
+        await createGroup(guild.id, name);
+        return res.send(respondWithMessageInEmbed(`Role-Group Created`, `name: ${name}\nType: Private Unordered`));
+    }
 }
 
 async function onList(req: Request, res: Response) {
@@ -114,6 +128,34 @@ async function onList(req: Request, res: Response) {
     } else {
         const StringifiedGroupList = groups.map((r) => r.name).join('\n');
         return res.send(respondWithMessageInEmbed(`Found ${groups.length} Role Groups`, StringifiedGroupList));
+    }
+}
+
+async function onEdit(req: Request, res: Response) {
+    const { id: interactionId } = req.body;
+    const guild: Guild = res.locals.guild;
+    const groupList = await getGroups(guild.id);
+
+    if (groupList.length === 0) {
+        return res.send(respondWithMessageInEmbed('Nothing to Edit', 'You have not set up any role groups', Status.warning));
+    } else {
+        const menuOptionsList: SelectOption[] = groupList.map((rg) => ({
+            label: rg.name,
+            value: rg.id,
+        }));
+
+        const response = await editGroupMenu.initInteraction(
+            interactionId,
+            {
+                [EditGroupProperties.id]: '',
+                [EditGroupProperties.isOrdered]: '',
+                [EditGroupProperties.isPublic]: '',
+                [EditGroupProperties.saveButton]: '',
+                [EditGroupProperties.cancelButton]: '',
+            },
+            [menuOptionsList]
+        );
+        return res.send(response);
     }
 }
 
@@ -140,16 +182,9 @@ async function onDeleteAll(req: Request, res: Response) {
     return res.send(respondWithMessageInEmbed(`Success`, 'All role groups has been deleted'));
 }
 
-async function initializeAddRole(interactionId: string) {
-    const value: AddRole2GroupMenuIdsToData = {
-        [AddRole2GroupMenuIds.roleMenu]: '',
-        [AddRole2GroupMenuIds.groupMenu]: '',
-    };
-    cacheUserSelection(interactionId, value);
-}
-
 async function onAddRole(req: Request, res: Response) {
     const { body } = req;
+    const { id: interactionId } = body;
 
     const guild: Guild = res.locals.guild;
     const groupList = await getGroups(guild.id);
@@ -175,13 +210,16 @@ async function onAddRole(req: Request, res: Response) {
         const guildRoleList = await getGuildRoles(guild.discord_guild_id);
         const roleConfigMenuOptions: SelectOption[] = convertRoleListToSelectOptions(roleList, guildRoleList);
         const groupMenuOptions = convertGroupListToSelectOptions(groupList);
-        await initializeAddRole(body.id);
-        return res.send(
-            respondWithInteractiveComponent('Select a role and select a role group to add the role to', [
-                createActionRowComponent([makeAddRoleToGroupMenu2(groupMenuOptions)]),
-                createActionRowComponent([makeAddRoleToGroupMenu1(roleConfigMenuOptions)]),
-            ])
+
+        const response = await addRole2GroupMenu.initInteraction(
+            interactionId,
+            {
+                [AddRole2GroupProperties.roleMenu]: '',
+                [AddRole2GroupProperties.groupMenu]: '',
+            },
+            [roleConfigMenuOptions, groupMenuOptions]
         );
+        return res.send(response);
     }
 }
 

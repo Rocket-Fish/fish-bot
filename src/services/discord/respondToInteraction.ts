@@ -135,20 +135,31 @@ export function respondWithMessageInEmbed(
     };
 }
 
+export type RespondWithInteractiveComponentConfig = {
+    ephemeral: boolean;
+    allowedMentions: AllowedMention[];
+    interactionResponseType: InteractionResponseType;
+};
+
 export function respondWithInteractiveComponent(
     message: string,
     components: Component[],
-    ephemeral: boolean = true,
-    allowedMentions: AllowedMention[] = []
+    config?: Partial<RespondWithInteractiveComponentConfig>
 ): InteractionResponse {
+    const c: RespondWithInteractiveComponentConfig = {
+        ephemeral: true,
+        allowedMentions: [],
+        interactionResponseType: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        ...config,
+    };
     return {
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        type: c.interactionResponseType,
         data: {
-            ...(ephemeral && { flags: InteractionResponseFlags.EPHEMERAL }),
+            ...(c.ephemeral && { flags: InteractionResponseFlags.EPHEMERAL }),
             components,
             content: message,
             allowed_mentions: {
-                parse: allowedMentions,
+                parse: c.allowedMentions,
             },
         },
     };

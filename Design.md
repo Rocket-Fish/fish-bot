@@ -35,20 +35,20 @@ Ordered vs Unordered groups, Ordered groups are a groups where the ordering of r
 
 -   [x] Dropdown Select: role rule to be deleted
 
-### /group create `name: string` `expressConfiguration: boolean`
+### ☑️ /group create `name: string` `expressConfiguration: boolean`
 
--   [ ] Add express configuration field and add support to following
+-   [x] Add express configuration field and add support to following
 -   if(expressConfiguration) default to private unordered group
 -   if(expressConfiguration)
-    -   [ ] Dropdown Select: Private|Public
-    -   [ ] Dropdown Select: Ordered|Unordered
+    -   [x] Dropdown Select: Private|Public
+    -   [x] Dropdown Select: Ordered|Unordered
 
-### /group edit-config
+### ☑️ /group edit
 
--   [ ] Dropdown Select: Which group
--   [ ] After above selection show another dropdown select with following
-    -   [ ] Dropdown Select: Private|Public
-    -   [ ] Dropdown Select: Ordered|Unordered
+-   [x] Dropdown Select: Which group
+-   [x] After above selection show another dropdown select with following
+    -   [x] Dropdown Select: Private|Public
+    -   [x] Dropdown Select: Ordered|Unordered
 
 ### /group list
 
@@ -75,10 +75,10 @@ Ordered vs Unordered groups, Ordered groups are a groups where the ordering of r
 -   TODO: think about how to design a group of dropdown menus to order roles
 -   Maybe: Menu: - Order 1 - Order 2 - Order 3 - Order 4 - Order 5
 
-### /for-each-member-in-server update-roles
+### ☑️ /for-each-member-in-server update-roles
 
 -   [x] Update roles based on every rule and group
--   [ ] Filter specific rules or groups to update like for example, every single rule/group, only apply all public groups, only apply specific group
+-   [x] Filter specific rules or groups to update like for example, every single rule/group, only apply all public groups, only apply specific group
 
 ### /dry-run for-each-member-in-server update-roles
 
@@ -90,10 +90,6 @@ Ordered vs Unordered groups, Ordered groups are a groups where the ordering of r
 
 ## Server Member Commands
 
-### /update-all-my-roles
-
--   [ ] TODO: update a user's roles based on all public groups
-
-### /update-a-group-of-roles
+### /gimme-roles
 
 -   [ ] Dropdown Select: which role group to apply

@@ -1,15 +1,13 @@
 import { Request, Response } from 'express';
 import { Guild } from '../../../models/Guild';
-import { getRoles, Role, Rule, RuleType } from '../../../models/Role';
-import { sleep } from '../../../utils/sleep';
-import { performRoleUpdate, RoleUpdateStatus } from '../../core/perform-role-update';
+import { RoleUpdateStatus } from '../../core/perform-role-update';
 import redisClient from '../../redis-client';
-import { createActionRowComponent } from '../components';
-import { makeRefreshButton } from '../components/refresh-button';
-import { getGuildMembers, giveGuildMemberRole, removeRoleFromGuildMember } from '../guilds';
+import { SelectOption, createActionRowComponent } from '../components';
 import { respondWithInteractiveComponent, respondWithMessageInEmbed, Status } from '../respondToInteraction';
 import { ApplicationCommand, ApplicationCommandOptionTypes, ApplicationCommandTypes, GuildMember } from '../types';
 import { ActionNotImplemented } from './types';
+import { getGroups } from '../../../models/Group';
+import { makeForEachMemberInServerUpdateRolesMenu } from '../components/for-each-member-in-server-update-roles-menu';
 
 enum ActionForEachMember {
     updateRoles = 'update-roles',
@@ -66,24 +64,26 @@ export async function updateCache(guildId: string, value: any) {
 
 async function onUpdateRoles(req: Request, res: Response) {
     const guild: Guild = res.locals.guild;
-    const roleList = await getRoles(guild.id);
 
-    if (roleList.length === 0) {
-        return res.send(respondWithMessageInEmbed('No Role Configurations Found', 'You have not set up any role configurations', Status.warning));
+    const groupList = await getGroups(guild.id);
+
+    if (groupList.length === 0) {
+        return res.send(
+            respondWithMessageInEmbed(
+                'No Groups found',
+                'You have not set up any role groups, You need to create at least one group and add roles to that group to run this command',
+                Status.warning
+            )
+        );
     } else {
-        let members: GuildMember[] = [];
-        let lastMember: GuildMember | undefined = undefined;
-        while (true) {
-            const fetchedMembers: GuildMember[] = await getGuildMembers(guild.discord_guild_id, lastMember?.user?.id);
-            if (fetchedMembers.length === 0) {
-                break;
-            }
-            members = members.concat(fetchedMembers);
-            lastMember = fetchedMembers[fetchedMembers.length - 1];
-            await sleep(500);
-        }
-
-        performRoleUpdate(guild, members);
-        res.send(respondWithInteractiveComponent('Updating roles for all members', [createActionRowComponent([makeRefreshButton()])], false));
+        const menuOptionsList: SelectOption[] = groupList.map((rg) => ({
+            label: rg.name,
+            value: rg.id,
+        }));
+        return res.send(
+            respondWithInteractiveComponent('Select Groups of roles to apply to everyone', [
+                createActionRowComponent([makeForEachMemberInServerUpdateRolesMenu(menuOptionsList)]),
+            ])
+        );
     }
 }

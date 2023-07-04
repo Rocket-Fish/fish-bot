@@ -1,14 +1,29 @@
 import { InteractionResponseType } from 'discord-interactions';
 import { Request, Response } from 'express';
-import { MenuComponent, createMenuComponent } from '.';
+import { CachedInteractiveComponent, MenuComponent, createActionRowComponent, createMenuComponent } from '.';
 import { Guild } from '../../../models/Guild';
 import { createRole, FFlogsDifficulty, Rule, RuleCondition, RuleOperand, RuleType } from '../../../models/Role';
-import redisClient from '../../redis-client';
-import { respondWithAcknowledgement } from '../respondToInteraction';
+import { respondWithAcknowledgement, respondWithInteractiveComponent } from '../respondToInteraction';
 
-export function makeZoneMenu(): MenuComponent {
+export const CREATE_FFLOGS_ROLE = 'createFFlogsRole';
+
+export const createFflogsRole = new CachedInteractiveComponent<CreateFFlogsRolePropertiesToData>(
+    CREATE_FFLOGS_ROLE,
+    generateInteraction,
+    handleCreateFFlogsRole
+);
+
+function generateInteraction() {
+    return respondWithInteractiveComponent('Select fflogs zone, operand and condition', [
+        createActionRowComponent([makeZoneMenu()]),
+        createActionRowComponent([makeOperandMenu()]),
+        createActionRowComponent([makeConditionMenu()]),
+    ]);
+}
+
+function makeZoneMenu(): MenuComponent {
     return createMenuComponent({
-        custom_id: 'select_zone',
+        custom_id: CreateFFlogsRoleProperties.selectZone,
         placeholder: 'In What Zone?',
         max_values: 1,
         min_values: 1,
@@ -30,9 +45,9 @@ export function makeZoneMenu(): MenuComponent {
     });
 }
 
-export function makeOperandMenu(): MenuComponent {
+function makeOperandMenu(): MenuComponent {
     return createMenuComponent({
-        custom_id: 'select_operand',
+        custom_id: CreateFFlogsRoleProperties.selectOperand,
         placeholder: 'What operand should be compared',
         options: [
             {
@@ -54,9 +69,9 @@ export function makeOperandMenu(): MenuComponent {
     });
 }
 
-export function makeConditionMenu(): MenuComponent {
+function makeConditionMenu(): MenuComponent {
     return createMenuComponent({
-        custom_id: 'select_condition',
+        custom_id: CreateFFlogsRoleProperties.selectCondition,
         placeholder: 'Under what condition should the operand be subjected to?',
         options: [
             {
@@ -72,63 +87,35 @@ export function makeConditionMenu(): MenuComponent {
         ],
     });
 }
-export enum CreateFFlogsRoleIds {
+export enum CreateFFlogsRoleProperties {
     roleId = 'role_id',
     selectZone = 'select_zone',
     selectOperand = 'select_operand',
     selectCondition = 'select_condition',
 }
 
-export function createFflogsRoleKey(interactionId: string) {
-    return `create-fflogs-role:${interactionId}`;
-}
-
-export type CreateFflogsRoleData = {
-    [k in CreateFFlogsRoleIds]: string;
+export type CreateFFlogsRolePropertiesToData = {
+    [k in CreateFFlogsRoleProperties]: string;
 };
 
-export async function cacheCreateFflogsRoleSelection(interactionId: string, value: CreateFflogsRoleData) {
-    return await redisClient.setEx(createFflogsRoleKey(interactionId), 60 * 30, JSON.stringify(value));
+function isInformationGatheringComplete(value: CreateFFlogsRolePropertiesToData) {
+    return (
+        value[CreateFFlogsRoleProperties.selectCondition] &&
+        value[CreateFFlogsRoleProperties.selectOperand] &&
+        value[CreateFFlogsRoleProperties.selectZone]
+    );
 }
 
-async function getCachedFFlogsRoleSelection(interactionId: string) {
-    return await redisClient.get(createFflogsRoleKey(interactionId));
-}
-
-function isInformationGatheringComplete(value: CreateFflogsRoleData) {
-    return value[CreateFFlogsRoleIds.selectCondition] && value[CreateFFlogsRoleIds.selectOperand] && value[CreateFFlogsRoleIds.selectZone];
-}
-
-export async function handleCreateFFlogsRole(req: Request, res: Response) {
-    const { body } = req;
-    const { data } = body;
-    const interactionId: string = body.message.interaction.id;
+async function handleCreateFFlogsRole(
+    t: CachedInteractiveComponent<CreateFFlogsRolePropertiesToData>,
+    req: Request,
+    res: Response,
+    cache: CreateFFlogsRolePropertiesToData
+) {
     const guild: Guild = res.locals.guild;
 
-    // TODO: refactor this function has similar contents to handleAddRoleToGroup()
-    const cachedValue: string | null = await getCachedFFlogsRoleSelection(interactionId);
-    if (!cachedValue) {
-        return res.send({
-            type: InteractionResponseType.UPDATE_MESSAGE,
-            data: {
-                content: 'This component has timed out, please run the command again',
-                components: [],
-            },
-        });
-    }
-
-    const cachedObject: CreateFflogsRoleData = JSON.parse(cachedValue);
-    const key: CreateFFlogsRoleIds = data.custom_id;
-
-    const selection = {
-        ...cachedObject,
-        [key]: data.values[0],
-    };
-
-    await cacheCreateFflogsRoleSelection(interactionId, selection);
-
-    if (isInformationGatheringComplete(selection)) {
-        const splitZone = selection.select_zone.split(',');
+    if (isInformationGatheringComplete(cache)) {
+        const splitZone = cache.select_zone.split(',');
         const rule: Rule = {
             type: RuleType.fflogs,
             area: {
@@ -136,15 +123,15 @@ export async function handleCreateFFlogsRole(req: Request, res: Response) {
                 id: Number(splitZone[0]),
                 difficulty: Number(splitZone[1]),
             },
-            operand: selection.select_operand as RuleOperand,
-            condition: selection.select_condition as RuleCondition,
+            operand: cache.select_operand as RuleOperand,
+            condition: cache.select_condition as RuleCondition,
         };
 
-        await createRole(guild.id, selection.role_id, rule);
+        await createRole(guild.id, cache.role_id, rule);
         return res.send({
             type: InteractionResponseType.UPDATE_MESSAGE,
             data: {
-                content: `Role <@&${selection.role_id}> will be given to users who has ${selection.select_operand} ${selection.select_condition} in Zone ${splitZone[0]} at Difficulty ${splitZone[1]}`,
+                content: `Role <@&${cache.role_id}> will be given to users who has ${cache.select_operand} ${cache.select_condition} in Zone ${splitZone[0]} at Difficulty ${splitZone[1]}`,
                 components: [],
             },
         });

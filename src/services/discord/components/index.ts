@@ -1,3 +1,8 @@
+import { Request, Response } from 'express';
+import { InteractionResponse } from '../respondToInteraction';
+import redisClient from '../../redis-client';
+import { InteractionResponseType } from 'discord-interactions';
+
 export enum ComponentType {
     actionRow = 1,
     button = 2,
@@ -86,4 +91,62 @@ export function createActionRowComponent(components: [MenuComponent] | ButtonCom
         type: ComponentType.actionRow,
         components,
     };
+}
+
+export class CachedInteractiveComponent<T extends object & (keyof T extends string ? {} : 'T in Interactive Component must have string keys')> {
+    protected identifier: string;
+    protected generateInteraction: (options?: SelectOption[][]) => InteractionResponse;
+    protected handleInteraction: (t: CachedInteractiveComponent<T>, req: Request, res: Response, cache: T, prevCache: T) => any;
+
+    constructor(
+        identifier: string,
+        generateInteraction: (options?: SelectOption[][]) => InteractionResponse,
+        handleInteraction: (t: CachedInteractiveComponent<T>, req: Request, res: Response, cache: T, prevCache: T) => any
+    ) {
+        this.identifier = identifier;
+        this.generateInteraction = generateInteraction;
+        this.handleInteraction = handleInteraction;
+    }
+
+    public async setCache(interactionId: string, cache: T) {
+        return await redisClient.setEx(`${this.identifier}:${interactionId}`, 60 * 30, JSON.stringify(cache));
+    }
+
+    public async getCache(interactionId: string) {
+        return await redisClient.get(`${this.identifier}:${interactionId}`);
+    }
+
+    public async initInteraction(interactionId: string, cache: T, options?: SelectOption[][]) {
+        await this.setCache(interactionId, cache);
+        return this.generateInteraction(options);
+    }
+
+    public async handler(req: Request, res: Response) {
+        const { body } = req;
+        const { data } = body;
+        const interactionId: string = body.message.interaction.id;
+
+        const rawCache = await this.getCache(interactionId);
+        if (!rawCache) {
+            return res.send({
+                type: InteractionResponseType.UPDATE_MESSAGE,
+                data: {
+                    content: 'This component has timed out, please run the command again',
+                    components: [],
+                },
+            });
+        }
+
+        const cache: T = JSON.parse(rawCache);
+        const key: keyof T = data.custom_id;
+
+        const updatedCache = {
+            ...cache,
+            [key]: data?.values?.[0] || 'clicked',
+        };
+
+        this.setCache(interactionId, updatedCache);
+
+        return await this.handleInteraction(this, req, res, updatedCache, cache);
+    }
 }
