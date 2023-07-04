@@ -9,7 +9,12 @@ import { handleTest, test } from '../services/discord/commands/test';
 import { AddRole2GroupProperties, addRole2GroupMenu } from '../services/discord/components/add-role-to-group-menu';
 import { handleDeleteRoleSelection, makeDeleteRoleConfigMenu } from '../services/discord/components/delete-role-config-menu';
 import { handleDeleteGroupSelection, makeDeleteGroupMenu } from '../services/discord/components/delete-role-group-menu';
-import { handleRefreshStatus, makeRefreshButton } from '../services/discord/components/refresh-button';
+import {
+    RefreshButtonTypes,
+    handleRefreshForEachMember,
+    handleRefreshGimmeRoles,
+    makeRefreshButton,
+} from '../services/discord/components/refresh-button';
 import { respondWithMessageInEmbed, Status } from '../services/discord/respondToInteraction';
 import { HTTPError } from '../services/http';
 import { makeRemoveRoleFromGroupMenu, handleRemoveRoleFromGroupMenu } from '../services/discord/components/remove-role-from-group-menu';
@@ -19,6 +24,8 @@ import {
     handleForEachMemberInServerUpdateRolesSelection,
     makeForEachMemberInServerUpdateRolesMenu,
 } from '../services/discord/components/for-each-member-in-server-update-roles-menu';
+import { gimmeRoles, handleGimmeRoles } from '../services/discord/commands/gimme-roles';
+import { handleGimmeRoleSelection, makeGimmeRoleMenu } from '../services/discord/components/gimme-role-menu';
 
 export async function handleInteractions(req: Request, res: Response) {
     try {
@@ -52,6 +59,9 @@ export async function handleInteractions(req: Request, res: Response) {
                 case forEachMember.name:
                     [req, res] = await populateGuild(req, res);
                     return await handleForEachMember(req, res);
+                case gimmeRoles.name:
+                    [req, res] = await populateGuild(req, res);
+                    return await handleGimmeRoles(req, res);
                 default:
                     return res.send({
                         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -66,9 +76,12 @@ export async function handleInteractions(req: Request, res: Response) {
                     return await handleDeleteRoleSelection(req, res);
                 case makeDeleteGroupMenu([]).custom_id:
                     return await handleDeleteGroupSelection(req, res);
-                case makeRefreshButton().custom_id:
+                case RefreshButtonTypes.refreshForEachMember:
                     [req, res] = await populateGuild(req, res);
-                    return await handleRefreshStatus(req, res);
+                    return await handleRefreshForEachMember(req, res);
+                case RefreshButtonTypes.refreshGimmeRoles:
+                    [req, res] = await populateGuild(req, res);
+                    return await handleRefreshGimmeRoles(req, res);
                 case AddRole2GroupProperties.roleMenu:
                 case AddRole2GroupProperties.groupMenu:
                     return await addRole2GroupMenu.handler(req, res);
@@ -93,6 +106,9 @@ export async function handleInteractions(req: Request, res: Response) {
                 case makeForEachMemberInServerUpdateRolesMenu([]).custom_id:
                     [req, res] = await populateGuild(req, res);
                     return await handleForEachMemberInServerUpdateRolesSelection(req, res);
+                case makeGimmeRoleMenu([]).custom_id:
+                    [req, res] = await populateGuild(req, res);
+                    return await handleGimmeRoleSelection(req, res);
                 default:
                     return res.send({
                         type: InteractionResponseType.UPDATE_MESSAGE,

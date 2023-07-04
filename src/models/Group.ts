@@ -30,6 +30,16 @@ export function getGroups(guild_id: string): Promise<Group[]> {
     });
 }
 
+export function getPublicGroups(guild_id: string): Promise<Group[]> {
+    return new Promise((resolve, reject) => {
+        db.from<Group>(groups)
+            .where('guild_id', guild_id)
+            .andWhere('is_public', true)
+            .then((groups) => resolve(groups))
+            .catch((e) => reject(e));
+    });
+}
+
 export function getGroup(id: string): Promise<Group | undefined> {
     return new Promise((resolve, reject) => {
         db.from<Group>(groups)

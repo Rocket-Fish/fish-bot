@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Support for Characters on the 4th NA DC dynamis
 -   Added two properties to Groups: Order, and Publicity
 -   Added command `/group edit` to edit the publicity and order of groups
+-   Added command `/gimme-roles`
 
 ### Changed
 

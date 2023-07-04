@@ -142,7 +142,7 @@ export function removeRoleFromAllGroups(roleId: string): Promise<void> {
 }
 
 export type RoleWithGroup = Pick<Role, 'guild_id' | 'discord_role_id' | 'rule'> &
-    Partial<Pick<Group, 'name'>> & {
+    Partial<Pick<Group, 'name' | 'is_ordered' | 'is_public'>> & {
         priority?: number;
         group_id?: string;
         role_id?: string;
@@ -150,7 +150,7 @@ export type RoleWithGroup = Pick<Role, 'guild_id' | 'discord_role_id' | 'rule'> 
 
 type Result = { rows: RoleWithGroup[] };
 export function getRolesWithGroup(forGuild: string, groupIds?: string[]): Promise<RoleWithGroup[]> {
-    const raw = `SELECT rgwp.group_id, rgwp.role_id, r.guild_id, r.discord_role_id, r.rule, rgwp.priority, g.name
+    const raw = `SELECT rgwp.group_id, rgwp.role_id, r.guild_id, r.discord_role_id, r.rule, rgwp.priority, g.name, g.is_ordered, g.is_public
     FROM ((${roles} r LEFT JOIN ${roleGroupWithPriority} rgwp ON r.id = rgwp.role_id) LEFT JOIN ${groups} g ON rgwp.group_id = g.id) 
     WHERE r.guild_id=? ${groupIds ? `AND rgwp.group_id=ANY(?)` : ''}
     ORDER BY rgwp.group_id DESC, rgwp.priority`;

@@ -90,6 +90,6 @@ Ordered vs Unordered groups, Ordered groups are a groups where the ordering of r
 
 ## Server Member Commands
 
-### /gimme-roles
+### ☑️ /gimme-roles
 
 -   [ ] Dropdown Select: which role group to apply
