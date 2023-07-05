@@ -1,8 +1,8 @@
 import { Guild } from '../../models/Guild';
-import { RoleWithGroup, getRolesWithGroup, RuleType, FFlogsRule, RuleOperand, RuleCondition } from '../../models/Role';
+import { RoleWithGroup, getRolesWithGroup, RuleType, FFlogsRule, RuleOperand, RuleCondition, FFlogsAreaType } from '../../models/Role';
 import { giveGuildMemberRole, removeRoleFromGuildMember } from '../discord/guilds';
 import { GuildMember } from '../discord/types';
-import { getCharacterZoneRankings } from '../fflogs/get-character-data';
+import { getCharacterEncounterRankings, getCharacterZoneRankings } from '../fflogs/get-character-data';
 import { CharacterNamingError, extractCharacter } from './extract-character';
 
 export type RoleUpdateStatus = {
@@ -49,8 +49,8 @@ export async function performRoleUpdate(guild: Guild, members: GuildMember[], gr
     }
 }
 
-function doesMemberHaveRole(member: GuildMember, role: RoleWithGroup) {
-    return !!(member.roles as string[]).find((r) => r === role.discord_role_id);
+function doesMemberHaveRole(member: GuildMember, role: RoleWithGroup, rolesGiven: string[]) {
+    return !!(member.roles as string[]).find((r) => r === role.discord_role_id) || rolesGiven.includes(role.discord_role_id);
 }
 
 type GroupCompletionStatus = {
@@ -70,11 +70,12 @@ async function handleRoles(guild: Guild, roleList: RoleWithGroup[], member: Guil
     const problems = [];
     const changes = [];
     const groupCompletionStatus: GroupCompletionStatus = {};
+    const rolesGiven = [];
     for (const role of roleList) {
         try {
             if (isCurrentGroupCompleted(groupCompletionStatus, role)) {
                 // if the user has any remaining roles, then remove them
-                if (doesMemberHaveRole(member, role)) {
+                if (doesMemberHaveRole(member, role, [])) {
                     await removeRoleFromGuildMember(guild.discord_guild_id, member.user.id, role.discord_role_id);
                     changes.push(`Removed <@&${role.discord_role_id}> from <@${member.user.id}>`);
                 }
@@ -84,8 +85,9 @@ async function handleRoles(guild: Guild, roleList: RoleWithGroup[], member: Guil
             switch (role.rule.type) {
                 case RuleType.everyone:
                     // if user doesn't already have this role, give it to them
-                    if (!doesMemberHaveRole(member, role)) {
+                    if (!doesMemberHaveRole(member, role, rolesGiven)) {
                         await giveGuildMemberRole(guild.discord_guild_id, member.user.id, role.discord_role_id);
+                        rolesGiven.push(role.discord_role_id);
                         changes.push(`Given <@&${role.discord_role_id}> to <@${member.user.id}>`);
                     }
                     if (role.is_ordered && role.group_id) {
@@ -94,7 +96,7 @@ async function handleRoles(guild: Guild, roleList: RoleWithGroup[], member: Guil
                     break;
                 case RuleType.noone:
                     // if user has this role, then remove it
-                    if (doesMemberHaveRole(member, role)) {
+                    if (doesMemberHaveRole(member, role, [])) {
                         await removeRoleFromGuildMember(guild.discord_guild_id, member.user.id, role.discord_role_id);
                         changes.push(`Removed <@&${role.discord_role_id}> from <@${member.user.id}>`);
                     }
@@ -106,14 +108,15 @@ async function handleRoles(guild: Guild, roleList: RoleWithGroup[], member: Guil
                     const isRuleSatisfied = await isFflogsRuleSatisfied(guild, role.rule, role, member);
 
                     if (isRuleSatisfied) {
-                        if (!doesMemberHaveRole(member, role)) {
+                        if (!doesMemberHaveRole(member, role, rolesGiven)) {
                             await giveGuildMemberRole(guild.discord_guild_id, member.user.id, role.discord_role_id);
+                            rolesGiven.push(role.discord_role_id);
                             changes.push(`Given <@&${role.discord_role_id}> to <@${member.user.id}>`);
                         }
                         if (role.is_ordered && role.group_id) {
                             groupCompletionStatus[role.group_id] = true;
                         }
-                    } else if (role.is_ordered && doesMemberHaveRole(member, role)) {
+                    } else if (role.is_ordered && doesMemberHaveRole(member, role, [])) {
                         // TODO: maybe need to rethink this part, currently catering to the case if a single role is given to multiple encounters (like the ultimates), thats an unordered group scenario
                         // remove role if the user no longer satisfy conditions for the role
                         await removeRoleFromGuildMember(guild.discord_guild_id, member.user.id, role.discord_role_id);
@@ -147,26 +150,33 @@ async function isFflogsRuleSatisfied(guild: Guild, rule: FFlogsRule, role: Exclu
     const nickname = member.nick;
     const character = extractCharacter(nickname || '');
 
-    if (rule.area.difficulty) {
-        // only zone areas have difficulty level, encounters don't have it
+    if (rule.area.type === FFlogsAreaType.zone && rule.area.difficulty) {
         const characterZoneRankings = await getCharacterZoneRankings(character.name, character.world, rule.area.id, rule.area.difficulty);
         if (!characterZoneRankings?.character?.zoneRankings?.rankings) throw new ZoneRankingMissingError('Zone Ranking is missing');
         const rankings: Ranking[] = characterZoneRankings.character.zoneRankings.rankings;
         const isRuleSatisfied = conditionComparison[rule.condition](resolvedOperand[rule.operand](rankings));
         return isRuleSatisfied;
-    } else {
-        // TODO: implement role rule area type 'encounter'
+    } else if (rule.area.type === FFlogsAreaType.encounter) {
+        const characterEncounterRankings = await getCharacterEncounterRankings(character.name, character.world, rule.area.id);
+        if (!characterEncounterRankings?.character?.encounterRankings) throw new ZoneRankingMissingError('Encounter Ranking is missing');
+        const encounterRankings: EncounterRankings = characterEncounterRankings.character.encounterRankings;
+        const isRuleSatisfied = conditionComparison[rule.condition](resolvedOperand[rule.operand](encounterRankings));
+        return isRuleSatisfied;
     }
-
     return false;
 }
+
+type EncounterRankings = {
+    totalKills: number;
+};
 
 type Ranking = {
     rankPercent: number;
 };
 
 type OperandToResolve = {
-    [k in RuleOperand]: (rankings: Ranking[]) => number;
+    // TODO: recode this any here, need to split encounter from zone operands
+    [k in RuleOperand]: (rankings: any) => number;
 };
 
 type ConditionToBoolean = {
@@ -177,11 +187,14 @@ const resolvedOperand: OperandToResolve = {
     [RuleOperand.numberOrangeParses]: (rankings: Ranking[]) => rankings.reduce((acc, cur) => acc + Number(cur.rankPercent >= 95), 0),
     [RuleOperand.numberPinkParses]: (rankings: Ranking[]) => rankings.reduce((acc, cur) => acc + Number(cur.rankPercent >= 99), 0),
     [RuleOperand.numberPurpleParses]: (rankings: Ranking[]) => rankings.reduce((acc, cur) => acc + Number(cur.rankPercent >= 75), 0),
+    [RuleOperand.numberOfKills]: (encounterRankings: EncounterRankings) => encounterRankings.totalKills,
 };
 
 const conditionComparison: ConditionToBoolean = {
     [RuleCondition.greaterThanOrEqualTo4]: (operand: number) => operand >= 4,
     [RuleCondition.greaterThanOrEqualTo3]: (operand: number) => operand >= 3,
+    [RuleCondition.greaterThanOrEqualTo2]: (operand: number) => operand >= 2,
+    [RuleCondition.greaterThanOrEqualTo1]: (operand: number) => operand >= 1,
 };
 
 export class ZoneRankingMissingError extends Error {

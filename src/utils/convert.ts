@@ -1,4 +1,4 @@
-import { Role, Rule, RuleType } from '../models/Role';
+import { FFlogsAreaType, Role, Rule, RuleType } from '../models/Role';
 import { Group } from '../models/Group';
 import { SelectOption } from '../services/discord/components';
 
@@ -9,9 +9,9 @@ export function convertRoleConfigToSentance(rule: Rule) {
         case RuleType.noone:
             return `Role should be remove-only`;
         case RuleType.fflogs:
-            if (rule.area.type === 'zone')
+            if (rule.area.type === FFlogsAreaType.zone)
                 return `Requirement: ${rule.operand} ${rule.condition} in Zone ${rule.area.id} at Difficulty ${rule.area.difficulty}`;
-            else return "rule.area.type = 'encounters' is Unsupported";
+            else return `Requirement: ${rule.operand} ${rule.condition} in Encounter ${rule.area.id}`;
         default:
             return 'Error converting role config to description';
     }

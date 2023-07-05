@@ -165,9 +165,9 @@
 {
     "data": {
         "rateLimitData": {
-            "limitPerHour": 48000,
-            "pointsSpentThisHour": 9,
-            "pointsResetIn": 3228
+            "limitPerHour": 3600,
+            "pointsSpentThisHour": 10.02,
+            "pointsResetIn": 3439
         },
         "worldData": {
             "expansions": [
@@ -176,11 +176,88 @@
                     "name": "Endwalker",
                     "zones": [
                         {
+                            "id": 54,
+                            "name": "Anabaseios",
+                            "brackets": {
+                                "min": 6,
+                                "max": 6.4,
+                                "type": "Patch",
+                                "bucket": 0.1
+                            },
+                            "difficulties": [
+                                {
+                                    "id": 101,
+                                    "name": "Savage",
+                                    "sizes": [8]
+                                },
+                                {
+                                    "id": 100,
+                                    "name": "Normal",
+                                    "sizes": [8]
+                                }
+                            ],
+                            "encounters": [
+                                {
+                                    "id": 88,
+                                    "name": "Kokytos"
+                                },
+                                {
+                                    "id": 89,
+                                    "name": "Pandaemonium"
+                                },
+                                {
+                                    "id": 90,
+                                    "name": "Themis"
+                                },
+                                {
+                                    "id": 91,
+                                    "name": "Athena"
+                                },
+                                {
+                                    "id": 92,
+                                    "name": "Pallas Athena"
+                                }
+                            ],
+                            "frozen": false,
+                            "partitions": [
+                                {
+                                    "id": 1,
+                                    "name": "Standard Comps (6.4)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 2,
+                                    "name": "Non-Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 3,
+                                    "name": "Standard Comps (6.4)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 4,
+                                    "name": "Non-Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 5,
+                                    "name": "Standard Comps (6.4)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 6,
+                                    "name": "Non-Standard Comps (6.4)",
+                                    "default": false
+                                }
+                            ]
+                        },
+                        {
                             "id": 49,
                             "name": "Abyssos",
                             "brackets": {
                                 "min": 6,
-                                "max": 6.2,
+                                "max": 6.4,
                                 "type": "Patch",
                                 "bucket": 0.1
                             },
@@ -223,7 +300,7 @@
                                 {
                                     "id": 1,
                                     "name": "Standard Comps (6.2)",
-                                    "default": true
+                                    "default": false
                                 },
                                 {
                                     "id": 2,
@@ -233,7 +310,7 @@
                                 {
                                     "id": 3,
                                     "name": "Standard Comps (6.2)",
-                                    "default": true
+                                    "default": false
                                 },
                                 {
                                     "id": 4,
@@ -243,11 +320,71 @@
                                 {
                                     "id": 5,
                                     "name": "Standard Comps (6.2)",
-                                    "default": true
+                                    "default": false
                                 },
                                 {
                                     "id": 6,
                                     "name": "Non-Standard Comps (6.2)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 7,
+                                    "name": "Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 8,
+                                    "name": "Non-Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 9,
+                                    "name": "Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 10,
+                                    "name": "Non-Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 11,
+                                    "name": "Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 12,
+                                    "name": "Non-Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 13,
+                                    "name": "Standard Comps (6.3)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 14,
+                                    "name": "Non-Standard Comps (6.3)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 15,
+                                    "name": "Standard Comps (6.3)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 16,
+                                    "name": "Non-Standard Comps (6.3)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 17,
+                                    "name": "Standard Comps (6.3)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 18,
+                                    "name": "Non-Standard Comps (6.3)",
                                     "default": false
                                 }
                             ]
@@ -257,7 +394,7 @@
                             "name": "Asphodelos",
                             "brackets": {
                                 "min": 6,
-                                "max": 6.2,
+                                "max": 6.4,
                                 "type": "Patch",
                                 "bucket": 0.1
                             },
@@ -295,7 +432,7 @@
                                     "name": "Hesperos II"
                                 }
                             ],
-                            "frozen": false,
+                            "frozen": true,
                             "partitions": [
                                 {
                                     "id": 1,
@@ -320,7 +457,7 @@
                                 {
                                     "id": 5,
                                     "name": "Standard Comps (6.0)",
-                                    "default": true
+                                    "default": false
                                 },
                                 {
                                     "id": 6,
@@ -350,7 +487,7 @@
                                 {
                                     "id": 11,
                                     "name": "Standard Comps (6.1)",
-                                    "default": false
+                                    "default": true
                                 },
                                 {
                                     "id": 12,
@@ -360,11 +497,97 @@
                             ]
                         },
                         {
+                            "id": 53,
+                            "name": "The Omega Protocol",
+                            "brackets": {
+                                "min": 6,
+                                "max": 6.4,
+                                "type": "Patch",
+                                "bucket": 0.1
+                            },
+                            "difficulties": [
+                                {
+                                    "id": 100,
+                                    "name": "Normal",
+                                    "sizes": [8]
+                                }
+                            ],
+                            "encounters": [
+                                {
+                                    "id": 1068,
+                                    "name": "The Omega Protocol"
+                                }
+                            ],
+                            "frozen": false,
+                            "partitions": [
+                                {
+                                    "id": 1,
+                                    "name": "Standard Comps (6.3)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 2,
+                                    "name": "Non-Standard Comps (6.3)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 3,
+                                    "name": "Standard Comps (6.3)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 4,
+                                    "name": "Non-Standard Comps (6.3)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 5,
+                                    "name": "Standard Comps (6.3)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 6,
+                                    "name": "Non-Standard Comps (6.3)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 7,
+                                    "name": "Standard Comps (6.4)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 8,
+                                    "name": "Non-Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 9,
+                                    "name": "Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 10,
+                                    "name": "Non-Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 11,
+                                    "name": "Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 12,
+                                    "name": "Non-Standard Comps (6.4)",
+                                    "default": false
+                                }
+                            ]
+                        },
+                        {
                             "id": 45,
                             "name": "Dragonsong's Reprise",
                             "brackets": {
                                 "min": 6,
-                                "max": 6.2,
+                                "max": 6.4,
                                 "type": "Patch",
                                 "bucket": 0.1
                             },
@@ -396,7 +619,7 @@
                                 {
                                     "id": 3,
                                     "name": "Standard Comps (6.1)",
-                                    "default": true
+                                    "default": false
                                 },
                                 {
                                     "id": 4,
@@ -406,7 +629,7 @@
                                 {
                                     "id": 5,
                                     "name": "Standard Comps (6.1)",
-                                    "default": true
+                                    "default": false
                                 },
                                 {
                                     "id": 6,
@@ -416,7 +639,7 @@
                                 {
                                     "id": 7,
                                     "name": "Standard Comps (6.2)",
-                                    "default": true
+                                    "default": false
                                 },
                                 {
                                     "id": 8,
@@ -442,6 +665,96 @@
                                     "id": 12,
                                     "name": "Non-Standard Comps (6.2)",
                                     "default": false
+                                },
+                                {
+                                    "id": 13,
+                                    "name": "Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 14,
+                                    "name": "Non-Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 15,
+                                    "name": "Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 16,
+                                    "name": "Non-Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 17,
+                                    "name": "Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 18,
+                                    "name": "Non-Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 19,
+                                    "name": "Standard Comps (6.3)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 20,
+                                    "name": "Non-Standard Comps (6.3)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 21,
+                                    "name": "Standard Comps (6.3)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 22,
+                                    "name": "Non-Standard Comps (6.3)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 23,
+                                    "name": "Standard Comps (6.3)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 24,
+                                    "name": "Non-Standard Comps (6.3)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 25,
+                                    "name": "Standard Comps (6.4)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 26,
+                                    "name": "Non-Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 27,
+                                    "name": "Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 28,
+                                    "name": "Non-Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 29,
+                                    "name": "Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 30,
+                                    "name": "Non-Standard Comps (6.4)",
+                                    "default": false
                                 }
                             ]
                         },
@@ -450,7 +763,7 @@
                             "name": "Ultimates (Legacy)",
                             "brackets": {
                                 "min": 6,
-                                "max": 6.2,
+                                "max": 6.4,
                                 "type": "Patch",
                                 "bucket": 0.1
                             },
@@ -500,7 +813,7 @@
                                 {
                                     "id": 5,
                                     "name": "Standard Comps (6.0)",
-                                    "default": true
+                                    "default": false
                                 },
                                 {
                                     "id": 6,
@@ -520,7 +833,7 @@
                                 {
                                     "id": 9,
                                     "name": "Standard Comps (6.1)",
-                                    "default": true
+                                    "default": false
                                 },
                                 {
                                     "id": 10,
@@ -540,7 +853,7 @@
                                 {
                                     "id": 13,
                                     "name": "Standard Comps (6.2)",
-                                    "default": true
+                                    "default": false
                                 },
                                 {
                                     "id": 14,
@@ -566,6 +879,152 @@
                                     "id": 18,
                                     "name": "Non-Standard Comps (6.2)",
                                     "default": false
+                                },
+                                {
+                                    "id": 19,
+                                    "name": "Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 20,
+                                    "name": "Non-Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 21,
+                                    "name": "Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 22,
+                                    "name": "Non-Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 23,
+                                    "name": "Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 24,
+                                    "name": "Non-Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 25,
+                                    "name": "Standard Comps (6.3)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 26,
+                                    "name": "Non-Standard Comps (6.3)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 27,
+                                    "name": "Standard Comps (6.3)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 28,
+                                    "name": "Non-Standard Comps (6.3)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 29,
+                                    "name": "Standard Comps (6.3)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 30,
+                                    "name": "Non-Standard Comps (6.3)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 31,
+                                    "name": "Standard Comps (6.4)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 32,
+                                    "name": "Non-Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 33,
+                                    "name": "Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 34,
+                                    "name": "Non-Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 35,
+                                    "name": "Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 36,
+                                    "name": "Non-Standard Comps (6.4)",
+                                    "default": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": 55,
+                            "name": "Trials III (Extreme)",
+                            "brackets": {
+                                "min": 6,
+                                "max": 6.4,
+                                "type": "Patch",
+                                "bucket": 0.1
+                            },
+                            "difficulties": [
+                                {
+                                    "id": 100,
+                                    "name": "Normal",
+                                    "sizes": [8]
+                                }
+                            ],
+                            "encounters": [
+                                {
+                                    "id": 1069,
+                                    "name": "Golbez"
+                                }
+                            ],
+                            "frozen": false,
+                            "partitions": [
+                                {
+                                    "id": 1,
+                                    "name": "Standard Comps (6.4)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 2,
+                                    "name": "Non-Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 3,
+                                    "name": "Standard Comps (6.4)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 4,
+                                    "name": "Non-Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 5,
+                                    "name": "Standard Comps (6.4)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 6,
+                                    "name": "Non-Standard Comps (6.4)",
+                                    "default": false
                                 }
                             ]
                         },
@@ -574,7 +1033,7 @@
                             "name": "Trials II (Extreme)",
                             "brackets": {
                                 "min": 6,
-                                "max": 6.2,
+                                "max": 6.4,
                                 "type": "Patch",
                                 "bucket": 0.1
                             },
@@ -589,6 +1048,10 @@
                                 {
                                     "id": 1066,
                                     "name": "Barbariccia"
+                                },
+                                {
+                                    "id": 1067,
+                                    "name": "Rubicante"
                                 }
                             ],
                             "frozen": false,
@@ -596,7 +1059,7 @@
                                 {
                                     "id": 1,
                                     "name": "Standard Comps (6.2)",
-                                    "default": true
+                                    "default": false
                                 },
                                 {
                                     "id": 2,
@@ -606,7 +1069,7 @@
                                 {
                                     "id": 3,
                                     "name": "Standard Comps (6.2)",
-                                    "default": true
+                                    "default": false
                                 },
                                 {
                                     "id": 4,
@@ -616,11 +1079,101 @@
                                 {
                                     "id": 5,
                                     "name": "Standard Comps (6.2)",
-                                    "default": true
+                                    "default": false
                                 },
                                 {
                                     "id": 6,
                                     "name": "Non-Standard Comps (6.2)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 7,
+                                    "name": "Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 8,
+                                    "name": "Non-Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 9,
+                                    "name": "Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 10,
+                                    "name": "Non-Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 11,
+                                    "name": "Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 12,
+                                    "name": "Non-Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 13,
+                                    "name": "Standard Comps (6.3)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 14,
+                                    "name": "Non-Standard Comps (6.3)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 15,
+                                    "name": "Standard Comps (6.3)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 16,
+                                    "name": "Non-Standard Comps (6.3)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 17,
+                                    "name": "Standard Comps (6.3)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 18,
+                                    "name": "Non-Standard Comps (6.3)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 19,
+                                    "name": "Standard Comps (6.4)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 20,
+                                    "name": "Non-Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 21,
+                                    "name": "Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 22,
+                                    "name": "Non-Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 23,
+                                    "name": "Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 24,
+                                    "name": "Non-Standard Comps (6.4)",
                                     "default": false
                                 }
                             ]
@@ -630,7 +1183,7 @@
                             "name": "Trials I (Extreme)",
                             "brackets": {
                                 "min": 6,
-                                "max": 6.2,
+                                "max": 6.4,
                                 "type": "Patch",
                                 "bucket": 0.1
                             },
@@ -680,7 +1233,7 @@
                                 {
                                     "id": 5,
                                     "name": "Standard Comps (6.0)",
-                                    "default": true
+                                    "default": false
                                 },
                                 {
                                     "id": 6,
@@ -700,7 +1253,7 @@
                                 {
                                     "id": 9,
                                     "name": "Standard Comps (6.1)",
-                                    "default": true
+                                    "default": false
                                 },
                                 {
                                     "id": 10,
@@ -720,7 +1273,7 @@
                                 {
                                     "id": 13,
                                     "name": "Standard Comps (6.2)",
-                                    "default": true
+                                    "default": false
                                 },
                                 {
                                     "id": 14,
@@ -746,6 +1299,96 @@
                                     "id": 18,
                                     "name": "Non-Standard Comps (6.2)",
                                     "default": false
+                                },
+                                {
+                                    "id": 19,
+                                    "name": "Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 20,
+                                    "name": "Non-Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 21,
+                                    "name": "Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 22,
+                                    "name": "Non-Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 23,
+                                    "name": "Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 24,
+                                    "name": "Non-Standard Comps (6.28)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 25,
+                                    "name": "Standard Comps (6.3)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 26,
+                                    "name": "Non-Standard Comps (6.3)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 27,
+                                    "name": "Standard Comps (6.3)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 28,
+                                    "name": "Non-Standard Comps (6.3)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 29,
+                                    "name": "Standard Comps (6.3)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 30,
+                                    "name": "Non-Standard Comps (6.3)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 31,
+                                    "name": "Standard Comps (6.4)",
+                                    "default": true
+                                },
+                                {
+                                    "id": 32,
+                                    "name": "Non-Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 33,
+                                    "name": "Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 34,
+                                    "name": "Non-Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 35,
+                                    "name": "Standard Comps (6.4)",
+                                    "default": false
+                                },
+                                {
+                                    "id": 36,
+                                    "name": "Non-Standard Comps (6.4)",
+                                    "default": false
                                 }
                             ]
                         },
@@ -754,7 +1397,7 @@
                             "name": "Trials (Unreal)",
                             "brackets": {
                                 "min": 6,
-                                "max": 6.2,
+                                "max": 6.4,
                                 "type": "Patch",
                                 "bucket": 0.1
                             },
@@ -773,6 +1416,14 @@
                                 {
                                     "id": 3005,
                                     "name": "Sephirot"
+                                },
+                                {
+                                    "id": 3006,
+                                    "name": "Sophia"
+                                },
+                                {
+                                    "id": 3007,
+                                    "name": "Zurvan"
                                 }
                             ],
                             "frozen": false,
@@ -810,18 +1461,64 @@
                             ]
                         },
                         {
+                            "id": 51,
+                            "name": "Dungeons (Criterion)",
+                            "brackets": {
+                                "min": 6,
+                                "max": 6.4,
+                                "type": "Patch",
+                                "bucket": 0.1
+                            },
+                            "difficulties": [
+                                {
+                                    "id": 11,
+                                    "name": "Savage",
+                                    "sizes": [4]
+                                },
+                                {
+                                    "id": 10,
+                                    "name": "Normal",
+                                    "sizes": [4]
+                                }
+                            ],
+                            "encounters": [
+                                {
+                                    "id": 4533,
+                                    "name": "Another Sil'dihn Subterrane"
+                                }
+                            ],
+                            "frozen": false,
+                            "partitions": [
+                                {
+                                    "id": 1,
+                                    "name": "default",
+                                    "default": true
+                                },
+                                {
+                                    "id": 2,
+                                    "name": "default",
+                                    "default": true
+                                },
+                                {
+                                    "id": 3,
+                                    "name": "default",
+                                    "default": true
+                                }
+                            ]
+                        },
+                        {
                             "id": 41,
                             "name": "Dungeons (Endgame)",
                             "brackets": {
                                 "min": 6,
-                                "max": 6.2,
+                                "max": 6.4,
                                 "type": "Patch",
                                 "bucket": 0.1
                             },
                             "difficulties": [
                                 {
                                     "id": 10,
-                                    "name": "Dungeon",
+                                    "name": "Normal",
                                     "sizes": [4]
                                 }
                             ],
@@ -845,6 +1542,67 @@
                                 {
                                     "id": 4532,
                                     "name": "The Fell Court of Troia"
+                                },
+                                {
+                                    "id": 4534,
+                                    "name": "Lapis Manalis"
+                                },
+                                {
+                                    "id": 4535,
+                                    "name": "The Aetherfont"
+                                }
+                            ],
+                            "frozen": false,
+                            "partitions": [
+                                {
+                                    "id": 1,
+                                    "name": "default",
+                                    "default": true
+                                },
+                                {
+                                    "id": 2,
+                                    "name": "default",
+                                    "default": true
+                                },
+                                {
+                                    "id": 3,
+                                    "name": "default",
+                                    "default": true
+                                }
+                            ]
+                        },
+                        {
+                            "id": 52,
+                            "name": "Euphrosyne",
+                            "brackets": {
+                                "min": 6,
+                                "max": 6.4,
+                                "type": "Patch",
+                                "bucket": 0.1
+                            },
+                            "difficulties": [
+                                {
+                                    "id": 100,
+                                    "name": "Normal",
+                                    "sizes": [24]
+                                }
+                            ],
+                            "encounters": [
+                                {
+                                    "id": 2045,
+                                    "name": "Nophica"
+                                },
+                                {
+                                    "id": 2046,
+                                    "name": "Althyk and Nymeia"
+                                },
+                                {
+                                    "id": 2047,
+                                    "name": "Halone"
+                                },
+                                {
+                                    "id": 2048,
+                                    "name": "Menphina"
                                 }
                             ],
                             "frozen": false,
@@ -871,7 +1629,7 @@
                             "name": "Aglaia",
                             "brackets": {
                                 "min": 6,
-                                "max": 6.2,
+                                "max": 6.4,
                                 "type": "Patch",
                                 "bucket": 0.1
                             },
@@ -924,7 +1682,7 @@
                             "name": "Delubrum Reginae",
                             "brackets": {
                                 "min": 6,
-                                "max": 6.2,
+                                "max": 6.4,
                                 "type": "Patch",
                                 "bucket": 0.1
                             },
@@ -2014,7 +2772,7 @@
                             "difficulties": [
                                 {
                                     "id": 10,
-                                    "name": "Dungeon",
+                                    "name": "Normal",
                                     "sizes": [4]
                                 }
                             ],
@@ -2422,7 +3180,7 @@
                             "difficulties": [
                                 {
                                     "id": 10,
-                                    "name": "Dungeon",
+                                    "name": "Normal",
                                     "sizes": [4]
                                 }
                             ],
@@ -3599,7 +4357,7 @@
                             "difficulties": [
                                 {
                                     "id": 10,
-                                    "name": "Dungeon",
+                                    "name": "Normal",
                                     "sizes": [4]
                                 }
                             ],
