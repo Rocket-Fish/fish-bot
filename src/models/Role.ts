@@ -35,7 +35,7 @@ export enum FFlogsDifficulty {
 
 export enum FFlogsAreaType {
     encounter = 'encounter',
-    zone = 'zone;',
+    zone = 'zone',
 }
 
 export type FFlogsArea = {

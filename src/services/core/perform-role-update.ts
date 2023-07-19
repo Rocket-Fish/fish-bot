@@ -105,7 +105,7 @@ async function handleRoles(guild: Guild, roleList: RoleWithGroup[], member: Guil
                     }
                     break;
                 case RuleType.fflogs:
-                    const isRuleSatisfied = await isFflogsRuleSatisfied(guild, role.rule, role, member);
+                    const isRuleSatisfied = await isFflogsRuleSatisfied(role.rule, member);
 
                     if (isRuleSatisfied) {
                         if (!doesMemberHaveRole(member, role, rolesGiven)) {
@@ -146,11 +146,14 @@ async function handleRoles(guild: Guild, roleList: RoleWithGroup[], member: Guil
     return { problems, changes };
 }
 
-async function isFflogsRuleSatisfied(guild: Guild, rule: FFlogsRule, role: Exclude<RoleWithGroup, 'rule'>, member: GuildMember): Promise<boolean> {
+async function isFflogsRuleSatisfied(rule: FFlogsRule, member: GuildMember): Promise<boolean> {
     const nickname = member.nick;
     const character = extractCharacter(nickname || '');
 
-    if (rule.area.type === FFlogsAreaType.zone && rule.area.difficulty) {
+    if (rule.area.type === FFlogsAreaType.zone) {
+        if (rule?.area?.difficulty === undefined) {
+            throw new Error('zone missing difficulty');
+        }
         const characterZoneRankings = await getCharacterZoneRankings(character.name, character.world, rule.area.id, rule.area.difficulty);
         if (!characterZoneRankings?.character?.zoneRankings?.rankings) throw new ZoneRankingMissingError('Zone Ranking is missing');
         const rankings: Ranking[] = characterZoneRankings.character.zoneRankings.rankings;
@@ -158,12 +161,13 @@ async function isFflogsRuleSatisfied(guild: Guild, rule: FFlogsRule, role: Exclu
         return isRuleSatisfied;
     } else if (rule.area.type === FFlogsAreaType.encounter) {
         const characterEncounterRankings = await getCharacterEncounterRankings(character.name, character.world, rule.area.id);
-        if (!characterEncounterRankings?.character?.encounterRankings) throw new ZoneRankingMissingError('Encounter Ranking is missing');
+        if (!characterEncounterRankings?.character?.encounterRankings) throw new EncounterRankingMissingError('Encounter Ranking is missing');
         const encounterRankings: EncounterRankings = characterEncounterRankings.character.encounterRankings;
         const isRuleSatisfied = conditionComparison[rule.condition](resolvedOperand[rule.operand](encounterRankings));
         return isRuleSatisfied;
+    } else {
+        throw new Error('rule type not supported');
     }
-    return false;
 }
 
 type EncounterRankings = {
@@ -201,5 +205,11 @@ export class ZoneRankingMissingError extends Error {
     constructor(message: string) {
         super(message);
         this.name = 'ZoneRankingMissingError';
+    }
+}
+export class EncounterRankingMissingError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'EncounterRankingMissingError';
     }
 }
