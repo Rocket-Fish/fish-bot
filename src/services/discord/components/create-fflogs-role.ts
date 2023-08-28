@@ -149,6 +149,11 @@ function makeZoneConditionMenu(): MenuComponent {
         placeholder: 'Under what condition should the operand be subjected to?',
         options: [
             {
+                label: '>= 5',
+                value: RuleCondition.greaterThanOrEqualTo5,
+                description: 'Operand must be greater than or equal to five',
+            },
+            {
                 label: '>= 4',
                 value: RuleCondition.greaterThanOrEqualTo4,
                 description: 'Operand must be greater than or equal to four',
@@ -157,6 +162,16 @@ function makeZoneConditionMenu(): MenuComponent {
                 label: '>= 3',
                 value: RuleCondition.greaterThanOrEqualTo3,
                 description: 'Operand must be greater than or equal to three',
+            },
+            {
+                label: '>= 2',
+                value: RuleCondition.greaterThanOrEqualTo2,
+                description: 'Operand must be greater than or equal to two',
+            },
+            {
+                label: '>= 1',
+                value: RuleCondition.greaterThanOrEqualTo1,
+                description: 'Operand must be greater than or equal to one',
             },
         ],
     });

@@ -62,6 +62,7 @@ export enum RuleCondition {
     greaterThanOrEqualTo2 = 'greater_than_or_equal_to_2',
     greaterThanOrEqualTo3 = 'greater_than_or_equal_to_3',
     greaterThanOrEqualTo4 = 'greater_than_or_equal_to_4',
+    greaterThanOrEqualTo5 = 'greater_than_or_equal_to_5',
 }
 
 export type FFlogsRule = {
