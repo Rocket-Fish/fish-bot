@@ -22,17 +22,45 @@ export function makeRefreshButton(id: RefreshButtonTypes): ButtonComponent {
 
 export async function handleRefreshForEachMember(req: Request, res: Response) {
     const guild: Guild = res.locals.guild;
+    const { token: interactionToken } = req.body;
 
     const json = await redisClient.get(forEachMemberKey(guild.id));
 
     if (json) {
         const status: RoleUpdateStatus = JSON.parse(json);
         let content = `**Progress:**\n${status.progress}${status.isComplete ? ' - Complete' : ' - In Progress'}${
-            status.problems.length > 0 ? `\n\n**Problems:**\n${status.problems.join('\n')}` : ''
+            status.problems.length > 0
+                ? `\n\n**Number of Problems: **${status.problems.length}\n${
+                      status.isComplete ? '' : 'A final report will be generated when someone clicks the refresh button after update has completed'
+                  }`
+                : ''
         }`;
+
+        // for (let i = 0; i < 100; i++) {
+        //     status.problems[status.problems.length] = 'Test Problem please ignore, this is just here to pad length to test message length';
+        // }
+
         const discordMessageMaxLength = 1999;
-        if (content.length > discordMessageMaxLength) {
-            content = content.substring(0, discordMessageMaxLength - 5) + '[...]'; // TODO: message concatenation
+        if (status.isComplete && status.problems.length > 0) {
+            const followups: string[] = [''];
+            let i = 0;
+            for (const problem of status.problems) {
+                if (followups[i].length + problem.length < discordMessageMaxLength) {
+                    if (followups[i].length === 0) {
+                        followups[i] = problem;
+                    } else {
+                        followups[i] = `${followups[i]}\n${problem}`;
+                    }
+                } else {
+                    // exceeding message max length
+                    i = i + 1;
+                    followups[i] = problem;
+                }
+            }
+
+            for (const followup of followups) {
+                performFollowup(interactionToken, { content: followup });
+            }
         }
 
         return res.send({
@@ -54,7 +82,7 @@ export async function handleRefreshForEachMember(req: Request, res: Response) {
 
 export async function handleRefreshGimmeRoles(req: Request, res: Response) {
     const guild: Guild = res.locals.guild;
-    const { member, token: interactionToken } = req.body;
+    const { member } = req.body;
 
     const json = await redisClient.get(gimmeRolesCacheKey(member.user.id));
 

@@ -195,6 +195,7 @@ const resolvedOperand: OperandToResolve = {
 };
 
 const conditionComparison: ConditionToBoolean = {
+    [RuleCondition.greaterThanOrEqualTo5]: (operand: number) => operand >= 5,
     [RuleCondition.greaterThanOrEqualTo4]: (operand: number) => operand >= 4,
     [RuleCondition.greaterThanOrEqualTo3]: (operand: number) => operand >= 3,
     [RuleCondition.greaterThanOrEqualTo2]: (operand: number) => operand >= 2,
