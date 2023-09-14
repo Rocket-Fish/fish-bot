@@ -6,13 +6,16 @@ import { requestToFflogs } from './request-to-fflogs';
 import util from 'util';
 import { sleep } from '../../utils/sleep';
 
-function generateRedisKey(...params: (string | number)[]): string {
+function generateRedisKey4Zone(...params: (string | number)[]): string {
     return 'fflogs-zone-rankings:' + params.join(':');
 }
+function generateRedisKey4Encounter(...params: (string | number)[]): string {
+    return 'fflogs-encounter-rankings:' + params.join(':');
+}
 
-async function cacheResponse(response: any, name: string, server: Worlds, zoneId: number, difficulty: number) {
+async function cacheResponse(key: string, response: any) {
     // expire in 20 min
-    return await redisClient.setEx(generateRedisKey(name, server, zoneId, difficulty), 60 * 20, JSON.stringify(response));
+    return await redisClient.setEx(key, 60 * 20, JSON.stringify(response));
 }
 
 type RateLimitData = {
@@ -34,7 +37,7 @@ export async function getCharacterZoneRankings(
     difficulty: number,
     retryCount: number = 10
 ): Promise<any> {
-    const cachedResult = await redisClient.get(generateRedisKey(name, server, zoneId, difficulty));
+    const cachedResult = await redisClient.get(generateRedisKey4Zone(name, server, zoneId, difficulty));
 
     if (cachedResult) {
         return JSON.parse(cachedResult);
@@ -57,7 +60,7 @@ query {
                     .replace(/ {2,}/g, '')
                     .replace(/[\n\t]/g, '')
             );
-            await cacheResponse(response.data.characterData, name, server, zoneId, difficulty);
+            await cacheResponse(generateRedisKey4Zone(name, server, zoneId, difficulty), response.data.characterData);
             await cacheRateLimit(response.data.rateLimitData);
             return response.data.characterData;
         } catch (e) {
@@ -75,6 +78,59 @@ query {
                                 console.log(`FFlogs rate limit hit, retrying in ${sleepTime}ms`);
                                 await sleep(sleepTime);
                                 return getCharacterZoneRankings(name, server, zoneId, difficulty, retryCount - 1);
+                            }
+                        }
+                    } catch (e) {
+                        console.log('failed to get rate limit cache for fflogs api', e);
+                    }
+                }
+            }
+            throw e;
+        }
+    }
+}
+export async function getCharacterEncounterRankings(name: string, server: Worlds, encounterId: number, retryCount: number = 10): Promise<any> {
+    const cachedResult = await redisClient.get(generateRedisKey4Encounter(name, server, encounterId));
+
+    if (cachedResult) {
+        return JSON.parse(cachedResult);
+    } else {
+        try {
+            const response = await requestToFflogs(
+                `
+query {
+    rateLimitData {
+        limitPerHour,
+        pointsSpentThisHour,
+        pointsResetIn
+    },
+    characterData {
+        character(name: "${name}", serverSlug: "${server.toLowerCase()}", serverRegion: "${worldToRegion[server]}") {
+            encounterRankings(encounterID: ${encounterId}, includePrivateLogs: true),
+        }
+    }
+}`
+                    .replace(/ {2,}/g, '')
+                    .replace(/[\n\t]/g, '')
+            );
+            await cacheResponse(generateRedisKey4Encounter(name, server, encounterId), response.data.characterData);
+            await cacheRateLimit(response.data.rateLimitData);
+            return response.data.characterData;
+        } catch (e) {
+            logFailedRequestToFflogs(e);
+            if (e instanceof HTTPError) {
+                if (e.status === 429) {
+                    try {
+                        const rateLimitJSON = await redisClient.get(rateLimitKey);
+                        if (rateLimitJSON) {
+                            const rateLimitData: RateLimitData = JSON.parse(rateLimitJSON);
+                            const retryAfter = Number(rateLimitData.pointsResetIn);
+                            if (!isNaN(retryAfter) && retryCount > 0) {
+                                // conert seconds to milliseconds and math.ceil it + 100ms at the end for safety margin
+                                const sleepTime = Math.ceil(retryAfter * 1000) + 100;
+                                console.log(`FFlogs rate limit hit, retrying in ${sleepTime}ms`);
+                                await sleep(sleepTime);
+                                return getCharacterEncounterRankings(name, server, encounterId, retryCount - 1);
                             }
                         }
                     } catch (e) {

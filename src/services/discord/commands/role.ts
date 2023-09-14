@@ -3,7 +3,13 @@ import { Guild } from '../../../models/Guild';
 import { createRole, deleteAllRolesFromGuild, getRoles, getRolesWithGroup, Role, Rule, RuleType } from '../../../models/Role';
 import { convertRoleConfigToSentance, convertRoleListToSelectOptions } from '../../../utils/convert';
 import { createActionRowComponent, SelectOption } from '../components';
-import { CreateFFlogsRoleProperties, CreateFFlogsRolePropertiesToData, createFflogsRole } from '../components/create-fflogs-role';
+import {
+    CreateFFlogsRoleInitProperties,
+    CreateFFlogsRole4ZoneProperties,
+    CreateFFlogsRole4ZonePropertiesToData,
+    createFflogsRole4Zone,
+    createFflogsRoleInit,
+} from '../components/create-fflogs-role';
 import { makeDeleteRoleConfigMenu } from '../components/delete-role-config-menu';
 import { getGuildRoles } from '../guilds';
 import { respondWithInteractiveComponent, respondWithMessageInEmbed, Status } from '../respondToInteraction';
@@ -138,11 +144,9 @@ async function onCreate(req: Request, res: Response) {
             );
         }
         case RuleType.fflogs:
-            const response = await createFflogsRole.initInteraction(interactionId, {
-                [CreateFFlogsRoleProperties.roleId]: discordRole,
-                [CreateFFlogsRoleProperties.selectCondition]: '',
-                [CreateFFlogsRoleProperties.selectOperand]: '',
-                [CreateFFlogsRoleProperties.selectZone]: '',
+            const response = await createFflogsRoleInit.initInteraction(interactionId, {
+                [CreateFFlogsRoleInitProperties.roleId]: discordRole,
+                [CreateFFlogsRoleInitProperties.type]: '',
             });
             return res.send(response);
         default:

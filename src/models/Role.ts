@@ -33,8 +33,13 @@ export enum FFlogsDifficulty {
     normal = 100,
 }
 
+export enum FFlogsAreaType {
+    encounter = 'encounter',
+    zone = 'zone',
+}
+
 export type FFlogsArea = {
-    type: 'encounter' | 'zone';
+    type: FFlogsAreaType;
     id: number;
     difficulty?: FFlogsDifficulty;
 };
@@ -49,9 +54,12 @@ export enum RuleOperand {
     numberPinkParses = 'number_pink_parses',
     numberOrangeParses = 'number_orange_parses',
     numberPurpleParses = 'number_purple_parses',
+    numberOfKills = 'number_of_kills',
 }
 
 export enum RuleCondition {
+    greaterThanOrEqualTo1 = 'greater_than_or_equal_to_1',
+    greaterThanOrEqualTo2 = 'greater_than_or_equal_to_2',
     greaterThanOrEqualTo3 = 'greater_than_or_equal_to_3',
     greaterThanOrEqualTo4 = 'greater_than_or_equal_to_4',
 }

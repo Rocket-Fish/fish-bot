@@ -18,7 +18,14 @@ import {
 import { respondWithMessageInEmbed, Status } from '../services/discord/respondToInteraction';
 import { HTTPError } from '../services/http';
 import { makeRemoveRoleFromGroupMenu, handleRemoveRoleFromGroupMenu } from '../services/discord/components/remove-role-from-group-menu';
-import { CreateFFlogsRoleProperties, createFflogsRole } from '../services/discord/components/create-fflogs-role';
+import {
+    CreateFFlogsRoleInitProperties,
+    CreateFFlogsRole4ZoneProperties,
+    createFflogsRole4Zone,
+    createFflogsRoleInit,
+    CreateFFlogsRole4EncounterProperties,
+    createFFlogsRole4Encounter,
+} from '../services/discord/components/create-fflogs-role';
 import { CreateGroupProperties, EditGroupProperties, createGroupMenu, editGroupMenu } from '../services/discord/components/group-menu';
 import {
     handleForEachMemberInServerUpdateRolesSelection,
@@ -87,11 +94,19 @@ export async function handleInteractions(req: Request, res: Response) {
                     return await addRole2GroupMenu.handler(req, res);
                 case makeRemoveRoleFromGroupMenu([]).custom_id:
                     return await handleRemoveRoleFromGroupMenu(req, res);
-                case CreateFFlogsRoleProperties.selectCondition:
-                case CreateFFlogsRoleProperties.selectOperand:
-                case CreateFFlogsRoleProperties.selectZone:
+                case CreateFFlogsRoleInitProperties.type:
                     [req, res] = await populateGuild(req, res);
-                    return await createFflogsRole.handler(req, res);
+                    return await createFflogsRoleInit.handler(req, res);
+                case CreateFFlogsRole4ZoneProperties.selectCondition:
+                case CreateFFlogsRole4ZoneProperties.selectOperand:
+                case CreateFFlogsRole4ZoneProperties.selectZone:
+                    [req, res] = await populateGuild(req, res);
+                    return await createFflogsRole4Zone.handler(req, res);
+                case CreateFFlogsRole4EncounterProperties.selectCondition:
+                case CreateFFlogsRole4EncounterProperties.selectOperand:
+                case CreateFFlogsRole4EncounterProperties.selectEncounter:
+                    [req, res] = await populateGuild(req, res);
+                    return await createFFlogsRole4Encounter.handler(req, res);
                 case CreateGroupProperties.isPublic:
                 case CreateGroupProperties.isOrdered:
                     [req, res] = await populateGuild(req, res);
